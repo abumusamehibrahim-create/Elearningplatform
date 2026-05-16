@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\VSProjects\\Elearningplatform\\ELearningPlatform\\ELearningPlatform.csproj": {}
+    "D:\\VSProjects\\Elearningplatform\\Elearningplatform\\ELearningPlatform.csproj": {}
   },
   "projects": {
-    "D:\\VSProjects\\Elearningplatform\\ELearningPlatform\\ELearningPlatform.csproj": {
+    "D:\\VSProjects\\Elearningplatform\\Elearningplatform\\ELearningPlatform.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\VSProjects\\Elearningplatform\\ELearningPlatform\\ELearningPlatform.csproj",
+        "projectUniqueName": "D:\\VSProjects\\Elearningplatform\\Elearningplatform\\ELearningPlatform.csproj",
         "projectName": "ELearningPlatform",
-        "projectPath": "D:\\VSProjects\\Elearningplatform\\ELearningPlatform\\ELearningPlatform.csproj",
+        "projectPath": "D:\\VSProjects\\Elearningplatform\\Elearningplatform\\ELearningPlatform.csproj",
         "packagesPath": "C:\\Users\\shaim\\.nuget\\packages\\",
-        "outputPath": "D:\\VSProjects\\Elearningplatform\\ELearningPlatform\\obj\\",
+        "outputPath": "D:\\VSProjects\\Elearningplatform\\Elearningplatform\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "D:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -44,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.300"
+        "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
         "net8.0": {
@@ -102,7 +102,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.313/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.202/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

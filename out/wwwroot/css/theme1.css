@@ -1,0 +1,33 @@
+﻿:root {
+    --theme-primary: #0057ff;
+    --theme-dark: #0a1a2f;
+    --theme-accent: #ffcc00;
+    --theme-bg: #f5f7fa;
+}
+
+body {
+    background: var(--theme-bg);
+}
+
+.navbar {
+    background: var(--theme-dark) !important;
+}
+
+.btn-primary {
+    background: var(--theme-primary);
+    border-color: var(--theme-primary);
+}
+
+    .btn-primary:hover {
+        background: #003fcc;
+    }
+
+.section-title {
+    color: var(--theme-primary);
+    font-weight: 800;
+}
+
+.card {
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}

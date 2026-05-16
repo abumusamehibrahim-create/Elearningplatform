@@ -1,0 +1,161 @@
+﻿/* ========================= ROOT COLORS ========================= */
+:root {
+    --theme-primary: #4c8bf5;
+    --theme-primary-dark: #2f6fe0;
+    --theme-primary-light: #e8f0ff;
+    --theme-bg: #f5f7fb;
+    --theme-bg-dark: #e1e5ee;
+    --theme-text: #1a1a1a;
+    --theme-text-light: #555;
+    --theme-card-bg: #ffffff;
+    --theme-card-border: #dfe3eb;
+    --theme-nav-bg: rgba(30, 50, 90, 0.85);
+    --theme-nav-hover: #ffdd66;
+    --theme-shadow: 0 8px 25px rgba(0,0,0,0.08);
+}
+
+/* ========================= BODY ========================= */
+body {
+    background: var(--theme-bg) !important;
+    color: var(--theme-text) !important;
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    background-attachment: fixed;
+}
+
+/* ========================= NAVBAR ========================= */
+.navbar {
+    background: var(--theme-nav-bg) !important;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.nav-link {
+    color: #fff !important;
+    transition: 0.25s ease;
+    font-weight: 500;
+}
+
+    .nav-link:hover {
+        color: var(--theme-nav-hover) !important;
+        transform: translateY(-2px);
+    }
+
+/* ========================= DROPDOWN ========================= */
+.dropdown-menu {
+    background: #fff;
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: var(--theme-shadow);
+}
+
+.dropdown-item:hover {
+    background: var(--theme-primary-light);
+    transform: translateX(-6px);
+}
+
+/* ========================= CARDS ========================= */
+.card {
+    background: var(--theme-card-bg) !important;
+    border: 1px solid var(--theme-card-border) !important;
+    border-radius: 14px !important;
+    box-shadow: var(--theme-shadow) !important;
+}
+
+.card-header {
+    background: var(--theme-primary) !important;
+    color: #fff !important;
+    font-weight: bold;
+}
+
+/* ========================= BUTTONS ========================= */
+.btn-primary {
+    background: var(--theme-primary) !important;
+    border-color: var(--theme-primary) !important;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 10px;
+}
+
+    .btn-primary:hover {
+        background: var(--theme-primary-dark) !important;
+    }
+
+/* ========================= FOOTER ========================= */
+footer {
+    background: var(--theme-nav-bg) !important;
+    padding: 40px 0 20px;
+    color: #ccc;
+    margin-top: 60px;
+}
+
+/* ========================= TICKER ========================= */
+.ticker-container {
+    width: 100%;
+    overflow: hidden;
+    padding: 10px 0;
+    background: #000;
+    margin-bottom: 10px;
+}
+
+.ticker-text {
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 100%;
+    animation: slideText 22s linear infinite;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+}
+
+@keyframes slideText {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* ========================= REVIEW BAR ========================= */
+.bottom-review-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 45px;
+    background: #000;
+    border-top: 2px solid #ffcc00;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.review-stars-full-btn {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.6rem;
+    color: #ffcc00;
+    text-decoration: none;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-shadow: 0 0 8px #ffcc00, 0 0 12px #ffdd55;
+    transition: 0.25s ease-in-out;
+}
+
+    .review-stars-full-btn:hover {
+        color: #fff6b0;
+        text-shadow: 0 0 12px #ffe680, 0 0 20px #ffcc00;
+        transform: scale(1.05);
+    }
+
+/* ========================= LOGO ========================= */
+.logo-tiny {
+    height: 5px !important;
+    width: 5px !important;
+    object-fit: contain !important;
+}

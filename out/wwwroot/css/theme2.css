@@ -1,0 +1,28 @@
+﻿:root {
+    --theme-primary: #d4a017;
+    --theme-dark: #1a1a1a;
+    --theme-light: #fdf8e7;
+}
+
+body {
+    background: var(--theme-light);
+}
+
+.navbar {
+    background: var(--theme-dark) !important;
+}
+
+.btn-primary {
+    background: var(--theme-primary);
+    border-color: var(--theme-primary);
+}
+
+.section-title {
+    color: var(--theme-primary);
+    font-weight: 900;
+}
+
+.card {
+    border-radius: 18px;
+    border: 1px solid rgba(212,160,23,0.3);
+}
