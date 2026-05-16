@@ -1,0 +1,132 @@
+@model List<ELearningPlatform.Models.Video>
+@{
+    ViewData["Title"] = "فيديوهات الكورس";
+    Layout = "_AdminLayout";
+    var course = ViewBag.Course as ELearningPlatform.Models.Course;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1">فيديوهات: @course?.Title</h4>
+        <a asp-controller="Admin" asp-action="Courses" class="text-muted small">
+            <i class="fas fa-arrow-right me-1"></i>العودة للكورسات
+        </a>
+    </div>
+    <a asp-controller="Admin" asp-action="UploadVideo" asp-route-courseId="@course?.Id"
+       class="btn btn-danger">
+        <i class="fas fa-upload me-2"></i>رفع فيديو جديد
+    </a>
+</div>
+
+<div class="table-card">
+    <table class="table table-hover mb-0" id="videosTable">
+        <thead class="table-light">
+            <tr>
+                <th>الترتيب</th>
+                <th>عنوان الفيديو</th>
+                <th>الوصف</th>
+                <th>النوع</th>
+                <th>تاريخ الرفع</th>
+                <th>المدة</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var video in Model)
+            {
+                <tr>
+                    <td><span class="badge bg-secondary">@video.OrderNumber</span></td>
+                    <td><strong>@video.Title</strong></td>
+                    <td class="text-muted small">@(video.Description ?? "-")</td>
+                    <td>
+                    <td class="text-muted small">@(video.DurationSeconds )</td>
+                    <td>
+                        @if (video.IsFree)
+                        {
+                            <span class="badge bg-success">مجاني</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">مدفوع</span>
+                        }
+                    </td>
+                    <td class="text-muted small">@video.CreatedAt.ToString("yyyy/MM/dd")</td>
+                    <td>
+                        <form asp-controller="Admin" asp-action="DeleteVideo" method="post"
+                              onsubmit="return confirm('هل أنت متأكد من حذف هذا الفيديو ,وما له علاقة بالفديو من ملفات؟')">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="videoId" value="@video.Id" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            <td>
+                <div class="d-flex gap-2">
+
+                    <!-- زر مشاهدة -->
+                    <a asp-controller="Admin" asp-action="Watch" asp-route-videoId="@video.Id"
+                       asp-route-id="@video.Id"
+                       class="btn btn-sm btn-outline-primary">
+                        <i class="fas fa-play"></i>
+                    </a>
+
+                    <!-- زر تعديل -->
+                    <a asp-controller="Admin" asp-action="UpdateVideo"
+                       asp-route-courseId="@video.CourseId"
+                       asp-route-id="@video.Id"
+                       class="btn btn-sm btn-outline-warning">
+                        <i class="fas fa-edit"></i>
+                    </a>
+
+                    <!-- زر حذف -->
+                    <form asp-controller="Admin" asp-action="DeleteVideo" method="post"
+                          onsubmit="return confirm('هل أنت متأكد من حذف هذا الفيديو؟')">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="videoId" value="@video.Id" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+
+                </div>
+            </td>
+
+            }
+        </tbody>
+    </table>
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="fas fa-video-slash fa-3x mb-3"></i>
+            <p>لا توجد فيديوهات بعد. ارفع أول فيديو الآن!</p>
+        </div>
+    }
+
+</div>
+@section Scripts {
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <script>
+        $("#videosTable tbody").sortable({
+            update: function (event, ui) {
+                let order = [];
+
+                $("#videosTable tbody tr").each(function (index) {
+                    order.push({
+                        id: $(this).data("id"),
+                        orderNumber: index + 1
+                    });
+                });
+
+                $.ajax({
+                    url: '/Admin/UpdateVideoOrder',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(order)
+                });
+            }
+        });
+    </script>
+}

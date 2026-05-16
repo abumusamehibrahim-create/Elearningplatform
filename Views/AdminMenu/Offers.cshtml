@@ -1,0 +1,70 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<section class="page-header">
+    <h1><i class="fa-solid fa-tags"></i> العروض</h1>
+
+@{
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+    <section class="page-header">
+        <h1>@ViewBag.Header</h1>
+
+        @if (isAdmin)
+        {
+            <a href="/AdminMenu/EditablePage?page=Offers" class="admin-edit-btn">
+                تعديل الصفحة
+            </a>
+        }
+    </section>
+
+    <section class="page-content">
+        <p>@ViewBag.Paragraph</p>
+    </section>
+
+       <!-- استفد من أفضل العروض والخصومات المتاحة حالياً على الدورات التعليمية.
+        تابع هذه الصفحة باستمرار للحصول على أحدث التخفيضات.-->
+    
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #ff4d4d, #ff9966);
+        padding: 40px;
+        border-radius: 18px;
+        color: #fff;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+    .admin-edit-btn {
+        background: #fff;
+        color: #d40000;
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: 0.3s ease;
+    }
+
+        .admin-edit-btn:hover {
+            background: #ffe6e6; 
+            transform: translateY(-3px);
+        }
+
+    .page-content {
+        background: #fff;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        line-height: 2;
+        font-size: 18px;
+    }
+</style>

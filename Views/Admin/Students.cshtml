@@ -1,0 +1,198 @@
+@model List<ELearningPlatform.Models.ApplicationUser>
+
+@{
+    ViewData["Title"] = "الطلاب والمدفوعات";
+    Layout = "_AdminLayout";
+
+    var query = Context.Request.Query;
+    var selectedStatus = query["status"].ToString();
+    var selectedCourse = query["course"].ToString();
+    var searchValue = query["search"].ToString();
+}
+<!-- the to allow alert to come from controllor through Temp-->
+@if (TempData["Message"] != null)
+{
+    var type = TempData["MessageType"]?.ToString() ?? "info";
+
+    <div class="alert alert-@type alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
+<h3 class="mb-4">الطلاب والمدفوعات</h3>
+<!-- فلترة وبحث -->
+<form method="get" class="row g-3 mb-4">
+
+    <!-- البحث بالاسم -->
+    <div class="col-md-3">
+        <label class="form-label">البحث بالاسم</label>
+        <input type="text" name="name" class="form-control"
+               value="@Context.Request.Query["name"]"
+               placeholder="اكتب اسم الطالب">
+    </div>
+
+    <!-- البحث بالبريد -->
+    <div class="col-md-3">
+        <label class="form-label">البحث بالبريد</label>
+        <input type="text" name="email" class="form-control"
+               value="@Context.Request.Query["email"]"
+               placeholder="اكتب البريد">
+    </div>
+
+    <!-- حالة الدفع -->
+    <div class="col-md-3">
+        <label class="form-label">حالة الدفع</label>
+        <select name="status" class="form-select">
+            <option value="">كل الحالات</option>
+
+            @if (selectedStatus == "Approved")
+            {
+                <option value="Approved" selected>مقبول</option>
+            }
+            else
+            {
+                <option value="Approved">مقبول</option>
+            }
+
+            @if (selectedStatus == "Pending")
+            {
+                <option value="Pending" selected>قيد المراجعة</option>
+            }
+            else
+            {
+                <option value="Pending">قيد المراجعة</option>
+            }
+
+            @if (selectedStatus == "Rejected")
+            {
+                <option value="Rejected" selected>مرفوض</option>
+            }
+            else
+            {
+                <option value="Rejected">مرفوض</option>
+            }
+        </select>
+    </div>
+
+    <!-- اسم الكورس -->
+    <div class="col-md-3">
+        <label class="form-label">اسم الكورس</label>
+        <input type="text" name="course" class="form-control"
+               value="@selectedCourse"
+               placeholder="اكتب اسم الكورس">
+    </div>
+
+    <!-- رقم التحويل -->
+    <div class="col-md-3">
+        <label class="form-label">رقم التحويل</label>
+        <input type="text" name="transfer" class="form-control"
+               value="@Context.Request.Query["transfer"]"
+               placeholder="اكتب رقم التحويل">
+    </div>
+
+    <!-- زر الفلترة -->
+    <div class="col-md-3 d-flex align-items-end">
+        <button class="btn btn-primary w-100">فلترة</button>
+    </div>
+
+</form>
+
+
+<!-- جدول الطلاب -->
+<table class="table table-bordered table-striped">
+    <thead class="table-dark">
+        <tr>
+            <th>اسم المستخدم</th>
+            <th>كلمة المرور</th>
+            <th>الاسم الكامل</th>
+            <th>البريد</th>
+            <th>تاريخ التسجيل</th>
+            <th>رقم الدفع</th>
+            <th>المدفوعات</th>
+            <th>حذف الطالب</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var student in Model)
+        {
+            <tr>
+                <td>@student.UserName</td>
+                <td>@student.PlainPassword</td>
+                <td>@student.FullName</td>
+                <td>@student.Email</td>
+                <td>@student.CreatedAt.ToString("yyyy-MM-dd")</td>
+
+                <td>
+                    @(student.Payments.FirstOrDefault()?.StripePaymentId ?? "—")
+                </td>
+
+                <td>
+                    @if (student.Payments.Any())
+                    {
+                        <table class="table table-sm table-bordered bg-light">
+                            <thead>
+                                <tr>
+                                    <th>الكورس</th>
+                                    <th>المبلغ</th>
+                                    <th>الحالة</th>
+                                    <th>التاريخ</th>
+                                    <th>رقم الدفع</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                @foreach (var p in student.Payments)
+                                {
+                                    <tr>
+                                        <td>@p.Course?.Title</td>
+
+                                        <td class="text-success fw-bold">$@p.Amount</td>
+
+                                        <td>
+                                            @if (p.Status == "Approved")
+                                            {
+                                                <span class="badge bg-success">مقبول</span>
+                                            }
+                                            else if (p.Status == "Pending")
+                                            {
+                                                <span class="badge bg-warning text-dark">قيد المراجعة</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger">مرفوض</span>
+                                            }
+                                        </td>
+
+                                        <td>@p.PaymentDate.ToString("yyyy-MM-dd")</td>
+
+                                        <td>
+                                            <code class="small text-muted">
+                                                @(p.StripePaymentId?.Length > 20 ? p.StripePaymentId[..20] + "..." : p.StripePaymentId)
+                                            </code>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <span class="text-muted">لا توجد مدفوعات</span>
+                    }
+                </td>
+
+                <!-- زر حذف الطالب -->
+                <td>
+                    <form asp-controller="Admin" asp-action="DeleteUser" method="post"
+                          onsubmit="return confirm('⚠ هل أنت متأكد من حذف هذا الطالب؟ سيتم حذف جميع بياناته؟');">
+                        <input type="hidden" name="id" value="@student.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">حذف</button>
+                    </form>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>

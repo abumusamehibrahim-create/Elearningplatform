@@ -1,0 +1,154 @@
+@model Course
+@{
+    ViewData["Title"] = Model.Title;
+     var isAdmin = User.IsInRole("Admin"); 
+    var canAccess = isAdmin || (User.Identity.IsAuthenticated && ViewBag.IsEnrolled == true && ViewBag.IsPaid == true);
+}
+
+}
+>
+
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">الرئيسية</a></li>
+                    <li class="breadcrumb-item active">@Model.Title</li>
+                </ol>
+            </nav>
+
+            <h1 class="fw-bold mb-3">@Model.Title</h1>
+            <p class="lead text-muted mb-4">@Model.Description</p>
+
+            <h4 class="fw-bold mb-3"><i class="fas fa-list me-2 text-danger"></i>محتوى الكورس</h4>
+
+            @foreach (var video in Model.Videos.OrderBy(v => v.OrderNumber))
+            {
+                <div class="video-item d-flex align-items-center">
+                    <div class="me-3">
+                        @if (video.IsFree)
+                        {
+                            <span class="badge bg-success"><i class="fas fa-unlock me-1"></i>مجاني</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary"><i class="fas fa-lock me-1"></i>مدفوع</span>
+                        }
+                    </div>
+
+                    <div class="flex-grow-1">
+                        <strong>@video.OrderNumber. @video.Title</strong>
+                        @if (!string.IsNullOrEmpty(video.Description))
+                        {
+                            <div class="text-muted small">@video.Description</div>
+                        }
+                    </div>
+
+                    <div>
+                        @if (video.IsFree)
+                        {
+                            <a asp-controller="Video" asp-action="Watch" asp-route-videoId="@video.Id"
+                               class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-play me-1"></i>شاهد مجاناً
+                            </a>
+
+                        }
+                        else
+                        {
+
+
+                            @if (canAccess)
+                            {
+
+                                <a asp-controller="Video" asp-action="Watch" asp-route-videoId="@video.Id"
+                                class="btn btn-sm btn-danger">
+                                    <i class="fas fa-play me-1"></i>مشاهدة
+                                </a>
+                                <!-- أوراق العمل (نفس شرط زر المشاهدة) -->
+                                @if (canAccess)
+                               
+                                  {
+                                    <a asp-controller="Worksheet" asp-action="WorksheetView" asp-route-videoId="@video.Id"
+                                        class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-file-alt me-1"></i> أوراق العمل
+                                            (@((video.WorksheetFiles?.Count ?? 0) + (video.WorksheetItems?.Count ?? 0)))
+                                        </a>
+
+
+
+                                    }
+
+
+
+                                    else
+
+
+
+                                    {
+
+
+
+                                        <span class="text-muted small">لا توجد أوراق عمل</span>
+
+
+
+                                    }
+
+
+
+                            }
+
+                            else
+
+                            {
+
+                                <i class="fas fa-lock text-muted"></i>
+
+                            }
+                        }
+                       
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <div class="sidebar sticky-top" style="top:20px;">
+                <div class="text-center mb-4">
+                    <div class="display-4 fw-bold text-danger mb-2">$@Model.Price</div>
+                    <p class="text-muted">دفعة واحدة - وصول مدى الحياة</p>
+                </div>
+
+                <a asp-controller="Payment" asp-action="Checkout" asp-route-courseId="@Model.Id"
+                   class="btn btn-danger btn-lg w-100 mb-3">
+                    <i class="fas fa-shopping-cart me-2"></i>اشترك الآن
+                </a>
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <a asp-controller="Video" asp-action="Index" asp-route-courseId="@Model.Id"
+                       class="btn btn-outline-danger w-100 mb-3">
+                        <i class="fas fa-play-circle me-2"></i>ادخل إلى الكورس
+                    </a>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login"
+                       class="btn btn-outline-secondary w-100 mb-3">
+                        <i class="fas fa-sign-in-alt me-2"></i>لديك حساب؟ سجل دخولك
+                    </a>
+                }
+
+                <hr />
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="fas fa-video text-danger me-2"></i> @Model.Videos.Count فيديو تعليمي</li>
+                    <li class="mb-2"><i class="fas fa-infinity text-danger me-2"></i> وصول مدى الحياة</li>
+                    <li class="mb-2"><i class="fas fa-mobile-alt text-danger me-2"></i> متاح على جميع الأجهزة</li>
+                    <li class="mb-2"><i class="fas fa-user text-danger me-2"></i> حساب خاص بك</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

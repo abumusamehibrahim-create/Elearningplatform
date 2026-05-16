@@ -1,0 +1,142 @@
+﻿@{
+    @using Microsoft.AspNetCore.Identity
+
+    Layout = "_Layout";
+}
+
+<section class="page-header">
+    <h1><i class="fa-solid fa-question"></i> الأسئلة الشائعة</h1>
+
+    @if (User.IsInRole("Admin"))
+    {
+        @if (User.IsInRole("Admin"))
+        {
+            <a href="/AdminMenu/DeleteAllQuestions"
+               onclick="return confirm('⚠ هل أنت متأكد من حذف جميع الأسئلة؟ لا يمكن التراجع عن هذا الإجراء.');"
+               class="btn btn-danger mb-3">
+                حذف جميع الأسئلة
+            </a>
+        }
+
+        
+    }
+</section>
+
+<section class="page-content">
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    <p>@ViewBag.Paragraph</p>
+
+    <!-- عرض الأسئلة -->
+    <div class="faq-list mt-4">
+
+        @foreach (var item in ViewBag.FAQList)
+        {
+            <div class="faq-box mb-4 p-3" style="border:1px solid #eee; border-radius:12px;">
+                <h4>❓ @item.Question</h4>
+
+                @if (!string.IsNullOrEmpty(item.Answer))
+                {
+                    <p class="text-success">💬 @item.Answer</p>
+                }
+                else
+                {
+                    <p class="text-muted">⏳ لم يتم الرد بعد</p>
+                }
+
+                @if (ViewBag.IsAdmin == true)
+                {
+                    <form method="post" action="/AdminMenu/AnswerQuestion" class="mt-2">
+                        <input type="hidden" name="id" value="@item.Id" />
+                        <textarea name="answer" class="form-control" rows="2">@item.Answer</textarea>
+                        <button class="btn btn-success btn-sm mt-2">حفظ الإجابة</button>
+                    </form>
+
+                    <a href="/AdminMenu/ToggleQuestion/@item.Id" class="btn btn-warning btn-sm mt-2">
+                        @(item.IsVisible ? "إخفاء" : "إظهار")
+                    </a>
+
+                    <a href="/AdminMenu/DeleteQuestion/@item.Id"
+                       onclick="return confirm('⚠ هل أنت متأكد من حذف هذا السؤال؟');"
+                       class="btn btn-danger btn-sm mt-2">
+                        حذف
+                    </a>
+
+                }
+            </div>
+        }
+    </div>
+
+    <hr />
+
+    <!-- نموذج إرسال سؤال للطلاب -->
+    @if (ViewBag.IsAdmin != true)
+    {
+        <h3 class="mt-4">أرسل سؤالك</h3>
+
+        <form method="post" action="/AdminMenu/AskQuestion">
+            <div class="mb-2">
+                <label>اسمك</label>
+                <input type="text" name="studentName" class="form-control" required />
+            </div>
+
+            <div class="mb-2">
+                <label>سؤالك</label>
+                <textarea name="question" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <button class="btn btn-danger mt-2">إرسال</button>
+        </form>
+    }
+</section>
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #ff4d4d, #ff9966);
+        padding: 40px;
+        border-radius: 18px;
+        color: #fff;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+    .admin-edit-btn {
+        background: #fff;
+        color: #d40000;
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-weight: bold;
+        text-decoration: none;
+        transition: 0.3s ease;
+    }
+
+        .admin-edit-btn:hover {
+            background: #ffe6e6;
+            transform: translateY(-3px);
+        }
+
+    .page-content {
+        background: #fff;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        line-height: 2;
+        font-size: 18px;
+    }
+</style>

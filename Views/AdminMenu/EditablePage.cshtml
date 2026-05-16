@@ -1,0 +1,92 @@
+﻿@model List<PageContent>
+
+@{
+    ViewData["Title"] = "Edit Page";
+    bool hasData = Model != null && Model.Any();
+    //string pageName = hasData ? Model.First().PageName : "صفحة بدون محتوى";
+  //  bool hasData = Model != null && Model.Any();
+    string pageName = hasData ? Model.First().PageName : (ViewContext.HttpContext.Request.Query["page"].ToString() ?? "Unknown");
+    if(Model != null && Model.Any())
+    {
+        pageName = Model.First().PageName;
+    }
+
+
+}
+
+
+
+
+<div class="container mt-4">
+
+    <h2 class="mb-4 text-center fw-bold">@pageName</h2>
+
+    <form asp-action="SavePage" method="post">
+
+        <input type="hidden" name="page" value="@pageName" />
+
+        <div class="row">
+
+           @for (int i = 0; i < Model.Count; i++)
+{
+    bool isTicker = pageName == "Ticker";
+
+    if (isTicker)
+    {
+        if (i == 0)
+        {
+            <!-- الحقل الوحيد الظاهر -->
+            <div class="col-md-12 mb-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body">
+                        <h5 class="card-title fw-bold">@Model[i].Section</h5>
+
+                        <input type="hidden" name="sections" value="@Model[i].Section" />
+                                    <textarea name="contents"
+                                  class="form-control mt-2"
+                                  rows="3"
+                                  style="resize: vertical;">@Model[i].Content</textarea>
+                        
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- الحقول الأخرى مخفية -->
+            <div style="display:none;">
+            <input type="hidden" name="sections" value="@Model[i].Section" />
+            <input type="hidden" name="contents" value="@Model[i].Content" />
+                        </div>
+        }
+    }
+    else
+    {
+        <!-- الصفحات الأخرى تعرض كل الحقول -->
+        <div class="col-md-6 mb-4">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title fw-bold">@Model[i].Section</h5>
+
+                    <input type="hidden" name="sections" value="@Model[i].Section" />
+
+                    <textarea name="contents"
+                              class="form-control mt-2"
+                              rows="5"
+                              style="resize: vertical;">@Model[i].Content</textarea>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+
+        <div class="text-center mt-4">
+            <button type="submit" class="btn btn-primary px-5 py-2 fw-bold">
+                حفظ التعديلات
+            </button>
+        </div>
+
+    </form>
+
+</div>

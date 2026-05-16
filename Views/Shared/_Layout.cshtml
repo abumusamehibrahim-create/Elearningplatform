@@ -1,0 +1,238 @@
+@using ELearningPlatform.Models
+
+@{
+    var settings = Context.Items["ClientSetting"] as ClientSetting;
+    var menu = Context.Items["Menu"] as List<MenuItem>;
+    var ticker = Context.Items["Ticker"] as string;
+}
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - المنصة التعليمية</title>
+
+    <!-- Bootstrap + FontAwesome -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+    <!-- Theme Color -->
+    <style>
+        :root {
+            --theme-color: @(settings?.ThemeColor ?? "#007bff");
+        }
+    </style>
+
+    <!-- Base Layout CSS -->
+    <link rel="stylesheet" href="~/css/layout-base.css" />
+
+    <!-- Theme File -->
+    @if (!string.IsNullOrEmpty(settings?.ThemeName))
+    {
+        <link rel="stylesheet" href="~/css/@($"{settings.ThemeName}.css")" />
+    }
+    else
+    {
+        <link rel="stylesheet" href="~/css/site.css" />
+    }
+</head>
+
+<body>
+
+      <!-- SuperAdmin Menu -->
+    @if (User.IsInRole("SuperAdmin"))
+    {
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle superadmin-menu" href="#" data-bs-toggle="dropdown">
+                ⚠️ SuperAdmin
+            </a>
+
+            <ul class="dropdown-menu superadmin-dropdown">
+                <li>
+                    <a class="dropdown-item menu-danger" href="/SuperAdminDashboard">
+                        🔥 SuperAdmin Dashboard
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item menu-warning" asp-controller="SuperAdminUser" asp-action="ChangePassword">
+                        🔑 تغيير كلمة المرور
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item menu-primary" asp-controller="SuperAdminUser" asp-action="Index">
+                        👥 إدارة المستخدمين
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item menu-secondary" href="/AdminMenu/EditablePage?page=Ticker">
+                        📢 تعديل الإعلان
+                    </a>
+                </li>
+
+                <li>
+                    <a class="dropdown-item menu-secondary" href="/Licenses/Dashboard">
+                        <i class="fa-solid fa-key me-2 text-warning"></i>
+                        License Dashboard
+                        <i class="fa-solid fa-check text-success float-end"></i>
+                    </a>
+                </li>
+            </ul>
+        </li>
+    }
+
+    <!-- Toasts -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 99999;">
+        @if (TempData["Success"] != null)
+        {
+            <div class="toast text-bg-success show"><div class="toast-body">@TempData["Success"]</div></div>
+        }
+        @if (TempData["Warning"] != null)
+        {
+            <div class="toast text-bg-warning show"><div class="toast-body">@TempData["Warning"]</div></div>
+        }
+    </div>
+
+    <!-- Ticker -->
+    @if (!string.IsNullOrEmpty(ticker))
+    {
+        <div class="ticker-container">
+            <div class="ticker-text">@ticker</div>
+        </div>
+    }
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <img src="@(settings?.LogoPath ?? "/uploads/logos/default.png")" class="logo-tiny" />
+            <style>
+                .logo-tiny {
+                    height: 60px !important;
+                    width: 60px !important;
+                    max-height: 70px !important;
+                    max-width: 70px !important;
+                    object-fit: contain !important;
+                    display: inline-block !important;
+                }</style>
+
+
+
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                {
+                    <a class="nav-link" href="/Home/LicenseInfo">
+                        <i class="fa-solid fa-id-card me-2 text-info"></i>
+                       Info
+                    </a>
+                }
+            }
+            <!-- Admin Edit Ticker -->
+            @if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+            {
+                <a href="/AdminMenu/EditablePage?page=Ticker" class="admin-edit-btn">تعديل الإعلان</a>
+            }
+           
+            <a class="navbar-brand fw-bold text-danger" asp-controller="Home" asp-action="Index">
+                <i class="fas fa-graduation-cap me-2"></i> منصة تعليمية
+            </a>
+
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#mainMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainMenu">
+
+                <!-- Dynamic Menu -->
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item dropdown">
+                          <a class="nav-link dropdown-toggle fw-bold" data-bs-toggle="dropdown">القائمة</a>
+                        <ul class="dropdown-menu">
+                            @foreach (var item in menu.Where(m => m.ParentId == null))
+                            {
+                                var children = menu.Where(c => c.ParentId == item.Id).ToList();
+
+                                if (children.Any())
+                                {
+                                    <li class="dropdown-submenu">
+                                        <a class="dropdown-item d-flex justify-content-between">
+                                            <span><i class="@item.Icon"></i> @item.Name</span>
+                                            <i class="fa fa-chevron-left"></i>
+                                        </a>
+                                        <ul class="dropdown-menu">
+                                            @foreach (var child in children)
+                                            {
+                                                <li><a class="dropdown-item" href="@Url.Action(child.Url, "AdminMenu")"><i class="@child.Icon"></i> @child.Name</a></li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li><a class="dropdown-item" href="@Url.Action(item.Url, "AdminMenu")"><i class="@item.Icon"></i> @item.Name</a></li>
+                                }
+                            }
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- Right Side -->
+                <ul class="navbar-nav">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" asp-controller="Admin" asp-action="Index">
+                                    <i class="fas fa-cog me-1"></i>لوحة التحكم
+                                </a>
+                            </li>
+                        }
+                    }
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Profile"><i class="fas fa-user me-1"></i>@User.Identity.Name</a></li>
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-link nav-link text-danger">
+                                    <i class="fas fa-sign-out-alt me-1"></i>تسجيل الخروج
+                                </button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link fw-bold" asp-controller="Account" asp-action="Login">تسجيل الدخول</a></li>
+                    }
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+    <!-----------------------------------NAV ENDED------------------------------------------------------------------------------>
+    <main class="container py-4">
+        @RenderBody()
+        <button class="btn-back" onclick="history.back()">⬅ رجوع</button>
+    </main>
+
+    <footer class="text-center py-4">
+        © 2026 المنصة التعليمية - جميع الحقوق محفوظة
+    </footer>
+    <div class="bottom-review-bar">
+        <a href="/AdminMenu/Reviews" class="review-stars-full-btn">
+            ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+        </a>
+    </div>
+    <!-- JS -->
+    <script src="~/js/layout.js"></script>
+
+    @RenderSection("Scripts", required: false)
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

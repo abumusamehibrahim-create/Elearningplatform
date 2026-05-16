@@ -1,0 +1,150 @@
+@model List<ELearningPlatform.Models.Course>
+@{
+    ViewData["Title"] = "إدارة الكورسات";
+    Layout = "_AdminLayout";
+
+    string search = Context.Request.Query["search"];
+    string status = Context.Request.Query["status"];
+    string sort = Context.Request.Query["sort"];
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0">الكورسات (@Model.Count)</h4>
+    <a asp-controller="Admin" asp-action="CreateCourse" class="btn btn-danger">
+        <i class="fas fa-plus me-2"></i>كورس جديد
+    </a>
+</div>
+
+<!-- 🔍 البحث + الفلترة + الترتيب -->
+<form method="get" class="row g-3 mb-4">
+
+    <div class="col-md-4">
+        <input type="text" name="search" value="@search"
+               class="form-control" placeholder="ابحث عن كورس...">
+    </div>
+
+    <div class="col-md-3">
+        <select name="status" class="form-select">
+            <option value="">كل الحالات</option>
+            <option value="active" selected="@(status == "active")">نشط</option>
+            <option value="inactive" selected="@(status == "inactive")">موقوف</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <select name="sort" class="form-select">
+            <option value="">الترتيب الافتراضي</option>
+            <option value="price_asc" selected="@(sort == "price_asc")">السعر (من الأقل للأعلى)</option>
+            <option value="price_desc" selected="@(sort == "price_desc")">السعر (من الأعلى للأقل)</option>
+            <option value="videos_asc" selected="@(sort == "videos_asc")">عدد الفيديوهات (تصاعدي)</option>
+            <option value="videos_desc" selected="@(sort == "videos_desc")">عدد الفيديوهات (تنازلي)</option>
+            <option value="newest" selected="@(sort == "newest")">الأحدث</option>
+            <option value="oldest" selected="@(sort == "oldest")">الأقدم</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button class="btn btn-danger w-100">بحث</button>
+    </div>
+
+</form>
+
+<div class="table-card">
+    <table class="table table-hover mb-0">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>الصورة</th>
+                <th>عنوان الكورس</th>
+                <th>السعر</th>
+                <th>الفيديوهات</th>
+                <th>الحالة</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in Model)
+            {
+                <tr>
+                    <td class="text-muted">@course.Id</td>
+
+                    <!-- صورة الكورس -->
+                    <td>
+                        @if (!string.IsNullOrEmpty(course.ThumbnailUrl))
+                        {
+                            <img src="/thumbnails/@course.ThumbnailUrl" width="60" class="rounded shadow-sm" />
+                        }
+                        else
+                        {
+                            <span class="text-muted small">لا توجد صورة</span>
+                        }
+                    </td>
+
+                    <!-- العنوان + الوصف -->
+                    <td style="max-width: 300px;">
+                        <strong>@course.Title</strong>
+                        <div class="text-muted small" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            @course.Description
+                        </div>
+                    </td>
+
+                    <!-- السعر -->
+                    <td>
+                        <span class="badge bg-danger fs-6">$@course.Price.ToString("0.00")</span>
+                    </td>
+
+                    <!-- عدد الفيديوهات -->
+                    <td>
+                        <span class="badge bg-secondary">
+                            <i class="fas fa-play-circle me-1"></i>@course.Videos.Count فيديو
+                        </span>
+                    </td>
+
+                    <!-- الحالة -->
+                    <td>
+                        @if (course.IsActive)
+                        {
+                            <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>نشط</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary"><i class="fas fa-ban me-1"></i>موقوف</span>
+                        }
+                    </td>
+
+                    <!-- الإجراءات -->
+                    <td>
+                        <a asp-controller="Admin" asp-action="Videos" asp-route-courseId="@course.Id"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-video me-1"></i>الفيديوهات
+                        </a>
+
+                        <a asp-controller="Admin" asp-action="UploadVideo" asp-route-courseId="@course.Id"
+                           class="btn btn-sm btn-danger">
+                            <i class="fas fa-upload me-1"></i>رفع فيديو
+                        </a>
+
+                        <a asp-controller="Admin" asp-action="EditCourse" asp-route-id="@course.Id"
+                           class="btn btn-sm btn-warning text-dark">
+                            <i class="fas fa-edit me-1"></i>تعديل
+                        </a>
+
+                        <a asp-controller="Admin" asp-action="DeleteCourse" asp-route-id="@course.Id"
+                           class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('هل أنت متأكد من حذف هذا الكورس؟ سيتم حذف جميع الفيديوهات والملفات التابعة له!');">
+                            <i class="fas fa-trash me-1"></i>حذف
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 text-muted">
+            <i class="fas fa-box-open fa-3x mb-3"></i>
+            <p>لا توجد كورسات بعد. أنشئ أول كورس الآن!</p>
+        </div>
+    }
+</div>

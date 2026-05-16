@@ -1,0 +1,78 @@
+@{
+    ViewData["Title"] = "تم الدفع بنجاح";
+    var username = TempData["Username"] as string;
+    var password = TempData["Password"] as string;
+    var courseName = TempData["CourseName"] as string;
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-lg rounded-4 text-center">
+                <div class="card-body p-5">
+
+                    <div class="mb-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center mb-3"
+                             style="width:90px;height:90px;">
+                            <i class="fas fa-check-circle fa-3x text-success"></i>
+                        </div>
+                        <h2 class="fw-bold text-success">تم الدفع بنجاح!</h2>
+                        <p class="text-muted"> المحتوى سيتم  تفعيل حسابك بعد موافقة النهائية وبعد ذلك يمكنك الوصول إلى <strong>@courseName</strong></p>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(username))
+                    {
+                        <div class="bg-light rounded-4 p-4 mb-4 text-start">
+                            <h6 class="fw-bold text-danger mb-3">
+                                <i class="fas fa-key me-2"></i>بيانات دخولك
+                            </h6>
+                            <div class="mb-2 d-flex justify-content-between align-items-center">
+                                <span class="text-muted">اسم المستخدم:</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <code id="uname" class="bg-white px-3 py-1 rounded border fs-6">@username</code>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="copyText('uname')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">كلمة المرور:</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <code id="pwd" class="bg-white px-3 py-1 rounded border fs-6">@password</code>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="copyText('pwd')">
+                                        <i class="fas fa-copy"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-warning text-start py-2 px-3 mb-4" style="font-size:.85rem;">
+                            <i class="fas fa-envelope me-2"></i>
+                            تم إرسال هذه البيانات أيضاً إلى بريدك الإلكتروني. احتفظ بها في مكان آمن.
+                        </div>
+                    }
+
+                    <a asp-controller="Account" asp-action="Login" class="btn btn-danger btn-lg w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>سجل دخولك الآن
+                    </a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary w-100 mt-2">
+                        <i class="fas fa-home me-2"></i>العودة للرئيسية
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function copyText(id) {
+    const text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+        const btn = event.currentTarget;
+        btn.innerHTML = '<i class="fas fa-check text-success"></i>';
+        setTimeout(() => btn.innerHTML = '<i class="fas fa-copy"></i>', 1500);
+    });
+}
+</script>
+}

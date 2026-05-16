@@ -1,0 +1,157 @@
+﻿@model List<MenuItem>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fontawesome-iconpicker/3.2.0/css/fontawesome-iconpicker.min.css" />
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fontawesome-iconpicker/3.2.0/js/fontawesome-iconpicker.min.js"></script>
+
+<style>
+    #sortable tr {
+        cursor: grab;
+    }
+
+        #sortable tr:active {
+            cursor: grabbing;
+        }
+
+    .table td, .table th {
+        vertical-align: middle;
+    }
+
+    .child-row {
+        display: none;
+    }
+</style>
+
+<h2 class="mb-4">إعدادات قائمة الموقع</h2>
+
+<a class="btn btn-success mb-3" asp-action="Add">+ إضافة عنصر جديد</a>
+
+<table class="table table-striped table-bordered align-middle">
+    <thead class="table-dark">
+        <tr>
+            <th>سحب</th>
+            <th>الأيقونة</th>
+            <th>الاسم</th>
+            <th>الرابط</th>
+            <th>القائمة الرئيسية</th>
+            <th>الترتيب</th>
+            <th>الصلاحيات</th>
+            <th>إظهار</th>
+            <th>حفظ</th>
+            <th>حذف</th>
+        </tr>
+    </thead>
+
+    <tbody id="sortable">
+        @foreach (var Menuitem in Model)
+        {
+            // حساب مستوى العنصر (Tree Level)
+            int level = 0;
+            var parent = Menuitem.ParentId;
+            while (parent != null)
+            {
+                level++;
+                parent = Model.FirstOrDefault(m => m.Id == parent)?.ParentId;
+            }
+
+            string indent = new string('—', level * 2);
+
+            // أيقونة تلقائية إذا لم يختَر المستخدم
+            var icon = string.IsNullOrEmpty(Menuitem.Icon)
+            ? "fa-regular fa-circle-dot"
+            : Menuitem.Icon;
+
+            // هل لديه أبناء؟
+            bool hasChildren = Model.Any(m => m.ParentId == Menuitem.Id);
+
+            <tr data-id="@Menuitem.Id" data-parent="@Menuitem.ParentId" class="@(Menuitem.ParentId != null ? "child-row" : "")">
+                <form asp-action="Update" method="post">
+
+                <td class="text-center">
+                    <i class="fa-solid fa-bars"></i>
+                </td>
+
+                <td>
+                    <input name="Icon" value="@icon" class="form-control icon-picker" />
+                </td>
+
+                <td>
+                    @if (hasChildren)
+                    {
+                        <button type="button" class="btn btn-sm btn-outline-secondary toggle-children" data-id="@Menuitem.Id">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                    }
+
+                    <input name="Name" value="@($"{indent} {Menuitem.Name}")" class="form-control" />
+                </td>
+
+                <td>
+                    <input name="Url" value="@Menuitem.Url" class="form-control" />
+                </td>
+
+                <td>
+                    <select name="ParentId" class="form-control">
+                        <option value="">بدون قائمة رئيسية</option>
+
+                        @foreach (var parentItem in Model.Where(m => m.Id != Menuitem.Id))
+                        {
+                            <option value="@parentItem.Id"
+                                    selected="@(Menuitem.ParentId == parentItem.Id ? "selected" : null)">
+                                @parentItem.Name
+                            </option>
+                        }
+                    </select>
+                </td>
+
+                <td>
+                    <input name="Order" value="@Menuitem.Order" type="number" class="form-control" />
+                </td>
+
+                <td>
+                    <input name="Roles" value="@Menuitem.Roles" class="form-control" placeholder="مثال: Admin,Teacher" />
+                </td>
+
+                <td class="text-center">
+                    <input type="checkbox" name="IsVisible" @(Menuitem.IsVisible ? "checked" : "") />
+                </td>
+
+                <input type="hidden" name="Id" value="@Menuitem.Id" />
+
+                <td>
+                    <button class="btn btn-primary btn-sm">حفظ</button>
+                </td>
+
+                <td>
+                    <a asp-action="Delete" asp-route-id="@Menuitem.Id" class="btn btn-danger btn-sm">حذف</a>
+                </td>
+
+                </form>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<script>
+    $('.icon-picker').iconpicker();
+
+    // توسيع/طي الأبناء
+    $(".toggle-children").on("click", function () {
+        var id = $(this).data("id");
+        $("tr[data-parent='" + id + "']").toggle();
+    });
+
+    // السحب والترتيب
+    $("#sortable").sortable({
+        update: function () {
+            var ids = $("#sortable tr").map(function () {
+                return $(this).data("id");
+            }).get();
+
+            $.post("/AdminMenu/SaveOrder", { ids: ids });
+        }
+    });
+</script>

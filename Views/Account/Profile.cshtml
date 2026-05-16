@@ -1,0 +1,48 @@
+@model ELearningPlatform.Models.ApplicationUser
+@{
+    ViewData["Title"] = "ملفي الشخصي";
+}
+
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card border-0 shadow-sm rounded-4 text-center p-4">
+                <div class="bg-danger bg-opacity-10 rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3"
+                     style="width:90px;height:90px;">
+                    <i class="fas fa-user fa-3x text-danger"></i>
+                </div>
+                <h4 class="fw-bold">@Model.FullName</h4>
+                <p class="text-muted">@Model.UserName</p>
+                <span class="badge bg-success px-3 py-2">
+                    <i class="fas fa-check-circle me-1"></i>حساب مفعّل
+                </span>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="card border-0 shadow-sm rounded-4 p-4">
+                <h5 class="fw-bold mb-4"><i class="fas fa-info-circle me-2 text-danger"></i>معلومات الحساب</h5>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">البريد الإلكتروني</span>
+                        <strong>@Model.Email</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">اسم المستخدم</span>
+                        <strong>@Model.UserName</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">تاريخ الدفع</span>
+                        <strong>@(Model.PaymentDate?.ToString("yyyy/MM/dd") ?? "-")</strong>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between">
+                        <span class="text-muted">تاريخ التسجيل</span>
+                        <strong>@Model.CreatedAt.ToString("yyyy/MM/dd")</strong>
+                    </li>
+                </ul>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-danger mt-4">
+                    <i class="fas fa-book me-2"></i>تصفح الدورات
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

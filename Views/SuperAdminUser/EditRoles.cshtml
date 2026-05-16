@@ -1,0 +1,50 @@
+﻿@model ELearningPlatform.ViewModels.EditUserRolesViewModel
+@{
+    ViewData["Title"] = "تعديل أدوار المستخدم";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white text-center py-3">
+            <h3 class="mb-0">تعديل أدوار المستخدم</h3>
+        </div>
+
+        <div class="card-body p-4">
+
+            <div class="alert alert-info text-center fs-5">
+                <strong>اسم المستخدم:</strong> @Model.UserName
+            </div>
+
+            <form asp-action="EditRoles" method="post">
+                <input type="hidden" asp-for="UserId" />
+
+                <div class="row">
+                    @for (int i = 0; i < Model.Roles.Count; i++)
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="form-check form-switch p-3 border rounded shadow-sm bg-light">
+                                <input class="form-check-input" type="checkbox" asp-for="Roles[i].Selected" />
+                                <label class="form-check-label fw-bold ms-2">
+                                    @Model.Roles[i].RoleName
+                                </label>
+
+                                <input type="hidden" asp-for="Roles[i].RoleName" />
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <div class="text-center mt-4">
+                    <button class="btn btn-success px-5 py-2">
+                        <i class="bi bi-check-circle"></i> حفظ التغييرات
+                    </button>
+
+                    <a asp-action="Index" class="btn btn-secondary px-4 py-2 ms-2">
+                        <i class="bi bi-arrow-right"></i> رجوع
+                    </a>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>

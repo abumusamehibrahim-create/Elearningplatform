@@ -1,0 +1,570 @@
+﻿@using ELearningPlatform.Data
+@using ELearningPlatform.Models
+@inject ApplicationDbContext _context
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@{
+    var settings = Context.Items["ClientSetting"] as ELearningPlatform.Models.ClientSetting;
+}
+
+
+<!DOCTYPE html>
+@{
+    var menu = _context.MenuItems
+        .Where(m => m.IsVisible)
+        .OrderBy(m => m.Order)
+        .ToList();
+    var userRoles = User.Claims
+    .Where(c => c.Type == System.Security.Claims.ClaimTypes.Role)
+    .Select(c => c.Value)
+    .ToList();
+
+    var tickerRow = _context.PageContents
+    .Where(p => p.PageName == "Ticker")
+    .OrderBy(p => p.Id)   // ← هذا هو التعديل الوحيد
+    .FirstOrDefault();
+
+    string ticker = tickerRow?.Content ?? "";
+
+
+}
+
+
+@if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+{
+    <a href="/AdminMenu/EditablePage?page=Ticker" class="admin-edit-btn">تعديل الإعلان</a>
+}
+
+@if (User.IsInRole("SuperAdmin"))
+{
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle superadmin-menu" href="#" data-bs-toggle="dropdown">
+            ⚠️ SuperAdmin
+        </a>
+
+        <ul class="dropdown-menu superadmin-dropdown">
+            <li>
+                <a class="dropdown-item menu-danger" href="/SuperAdminDashboard">
+                    🔥 SuperAdmin Dashboard
+                </a>
+            </li>
+
+            <li>
+                <a class="dropdown-item menu-warning" asp-controller="SuperAdminUser" asp-action="ChangePassword">
+                    🔑 تغيير كلمة المرور
+                </a>
+            </li>
+
+            <li>
+                <a class="dropdown-item menu-primary" asp-controller="SuperAdminUser" asp-action="Index">
+                    👥 إدارة المستخدمين
+                </a>
+            </li>
+
+            <li>
+                <a class="dropdown-item menu-secondary" href="/AdminMenu/EditablePage?page=Ticker">
+                    📢 تعديل الإعلان
+                </a>
+            </li>
+
+            <li>
+                <a class="dropdown-item menu-secondary" href="/Licenses/Dashboard">
+                    <i class="fa-solid fa-key me-2 text-warning"></i>
+                    License Dashboard
+                    <i class="fa-solid fa-check text-success float-end"></i>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+}
+<html lang="ar" dir="rtl">
+
+<!-- ========================= HEAD ========================= -->
+<head>
+
+    <style>
+        :root {
+            --theme-color: @(settings?.ThemeColor ?? "#007bff");
+        }
+    </style>
+
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - المنصة التعليمية</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+
+
+
+
+
+
+
+
+    <!-- YOUR CUSTOM HEAD CSS (unchanged, only cleaned) -->
+    <style>
+        .dropdown-submenu {
+            position: relative;
+        }
+
+            .dropdown-submenu .dropdown-menu {
+                top: 0;
+                right: 100%;
+                display: none;
+            }
+
+            .dropdown-submenu:hover .dropdown-menu {
+                display: block;
+            }
+
+        body {
+            background: radial-gradient(circle at 20% 20%, #ffffff 0%, #e6e9f0 40%, #d4d7dd 100%);
+            color: #222;
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+            background-attachment: fixed;
+        }
+
+        .moving-banner {
+            background: #000;
+            color: #fff;
+            font-weight: bold;
+            padding: 10px 0;
+            text-align: center;
+        }
+
+        .navbar {
+            background: rgba(26, 26, 46, 0.75) !important;
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.15);
+        }
+
+        .nav-link {
+            color: #fff !important;
+            transition: 0.25s ease;
+        }
+
+            .nav-link:hover {
+                color: #ffdd66 !important;
+                transform: translateY(-2px);
+            }
+
+        .dropdown-menu {
+            background: rgba(255,255,255,0.95);
+            border-radius: 14px;
+            padding: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 230, 150, 0.4);
+            transform: translateX(-6px);
+        }
+
+        footer {
+            background: rgba(26, 26, 46, 0.85);
+            padding: 40px 0 20px;
+            color: #ccc;
+            margin-top: 60px;
+        }
+
+        .btn-back {
+            background: #d40000;
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .ticker-container {
+            width: 100%;
+            overflow: hidden;
+            padding: 10px 0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            animation: colorChange 6s infinite alternate;
+        }
+
+        .ticker-text {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: slideText 12s linear infinite;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+
+        .ticker-container {
+            width: 100%;
+            overflow: hidden;
+            padding: 10px 0;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            animation: colorChange 6s infinite alternate;
+        }
+
+
+
+        .ticker-container {
+            width: 100%;
+            overflow: hidden;
+            padding: 10px 0;
+            background: #000;
+            margin-bottom: 10px;
+        }
+
+        .ticker-text {
+            display: inline-block;
+            white-space: nowrap;
+            padding-left: 100%;
+            animation: slideText 22s linear infinite;
+            font-size: 18px;
+            font-weight: bold;
+            color: #fff;
+        }
+
+
+
+        @@keyframes slideText {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-100%);
+            }
+        }
+
+
+
+
+
+        .bottom-review-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 45px;
+            background: #000; /* dark background for glow */
+            border-top: 2px solid #ffcc00;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .review-stars-full-btn {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.6rem;
+            color: #ffcc00;
+            text-decoration: none;
+            font-weight: 700;
+            letter-spacing: 4px;
+            text-shadow: 0 0 8px #ffcc00, 0 0 12px #ffdd55;
+            transition: 0.25s ease-in-out;
+        }
+
+            .review-stars-full-btn:hover {
+                color: #fff6b0;
+                text-shadow: 0 0 12px #ffe680, 0 0 20px #ffcc00;
+                transform: scale(1.05);
+            }
+
+        .logo-tiny {
+            height: 5px !important;
+            width: 5px !important;
+            max-height: 5px !important;
+            max-width: 5px !important;
+            object-fit: contain !important;
+            display: inline-block !important;
+        }
+    </style>
+
+    @if (settings?.ThemeName == "theme1")
+    {
+        <link rel="stylesheet" href="~/css/theme1.css" />
+    }
+    else if (settings?.ThemeName == "theme2")
+    {
+        <link rel="stylesheet" href="~/css/theme2.css" />
+    }
+    else if (settings?.ThemeName == "theme3")
+    {
+        <link rel="stylesheet" href="~/css/theme3.css" />
+    }
+    else if (settings?.ThemeName == "THEMEUltraModernPremium")
+    {
+
+        <link rel="stylesheet" href="~/css/THEMEUltraModernPremium.css" />
+    }
+    else if (settings?.ThemeName == "DarkPremium")
+    {
+        <link rel="stylesheet" href="~/css/DarkPremium.css" />
+    }
+    else if (settings?.ThemeName == "EmeraldGreen")
+    {
+        <link rel="stylesheet" href="~/css/EmeraldGreen.css" />
+
+    }
+    else if (settings?.ThemeName == "OceanBlue")
+    {
+        <link rel="stylesheet" href="~/css/OceanBlue.css" />
+    }
+    else if (settings?.ThemeName == "RoyalGold")
+    {
+        <link rel="stylesheet" href="~/css/RoyalGold.css" />
+    }
+    else if (settings?.ThemeName == "themeDarkNeon")
+    {
+        <link rel="stylesheet" href="~/css/themeDarkNeon.css" />
+    }
+    else if (settings?.ThemeName == "themeEmeraldGreen")
+    {
+        <link rel="stylesheet" href="~/css/themeEmeraldGreen.css" />
+    }
+    else if (settings?.ThemeName == "themeRoyalRed")
+    {
+        <link rel="stylesheet" href="~/css/themeRoyalRed.css" />
+    }
+
+    else
+    {
+        <link rel="stylesheet" href="~/css/site.css" />
+    }
+
+</head>
+
+<!-- ========================= BODY ========================= -->
+<body>
+
+
+    <!-- Toast Container -->
+
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 99999;">
+        @if (TempData["Success"] != null)
+        {
+            <div class="toast align-items-center text-bg-success border-0 show" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        @TempData["Success"]
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto"
+                            data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        }
+
+        @if (TempData["Warning"] != null)
+        {
+            <div class="toast align-items-center text-bg-warning border-0 show" role="alert">
+                <div class="d-flex">
+                    <div class="toast-body">
+                        @TempData["Warning"]
+                    </div>
+                    <button type="button" class="btn-close me-2 m-auto"
+                            data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        }
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+            toastElList.map(function (toastEl) {
+                var t = new bootstrap.Toast(toastEl)
+                t.show()
+            })
+        });
+    </script>
+
+
+    @if (!string.IsNullOrEmpty(ticker))
+    {
+        <div class="ticker-container">
+            <div class="ticker-text">@ticker</div>
+        </div>
+    }
+
+    <!-- ⭐ CLEAN NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                {
+                    <a class="nav-link" href="/Home/LicenseInfo">
+                        <i class="fa-solid fa-id-card me-2 text-info"></i>
+                        License Info
+                    </a>
+                }
+            }
+            <img src="@(settings?.LogoPath ?? "/uploads/logos/default.png")" class="logo-tiny" />
+            <style>
+                .logo-tiny {
+                    height: 60px !important;
+                    width: 60px !important;
+                    max-height: 70px !important;
+                    max-width: 70px !important;
+                    object-fit: contain !important;
+                    display: inline-block !important;
+                }</style>
+            <a class="navbar-brand text-danger fw-bold" asp-controller="Home" asp-action="Index">
+                <i class="fas fa-graduation-cap me-2"></i> منصة تعليمية
+            </a>
+
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainMenu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="mainMenu">
+
+                <!-- ⭐ Dynamic Menu -->
+                <ul class="navbar-nav me-auto">
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle fw-bold" href="#" data-bs-toggle="dropdown">
+                            القائمة
+                        </a>
+
+                        <ul class="dropdown-menu">
+
+                            @foreach (var item in menu.Where(m => m.ParentId == null))
+                            {
+                                var children = menu.Where(c => c.ParentId == item.Id).ToList();
+
+                                if (children.Any())
+                                {
+                                    <li class="dropdown-submenu">
+                                        <a class="dropdown-item d-flex justify-content-between" href="#">
+                                            <span><i class="@item.Icon"></i> @item.Name</span>
+                                            <i class="fa fa-chevron-left"></i>
+                                        </a>
+
+                                        <ul class="dropdown-menu">
+                                            @foreach (var child in children)
+                                            {
+                                                <li>
+                                                    <a class="dropdown-item" href="@Url.Action(child.Url, "AdminMenu")">
+                                                        <i class="@child.Icon"></i> @child.Name
+                                                    </a>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li>
+                                        <a class="dropdown-item" href="@Url.Action(item.Url, "AdminMenu")">
+                                            <i class="@item.Icon"></i> @item.Name
+                                        </a>
+                                    </li>
+                                }
+                            }
+
+                        </ul>
+                    </li>
+
+                </ul>
+
+                <!-- ⭐ Right Side -->
+                <ul class="navbar-nav">
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-warning" asp-controller="Admin" asp-action="Index">
+                                    <i class="fas fa-cog me-1"></i>لوحة التحكم
+                                </a>
+                            </li>
+                        }
+                    }
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" asp-controller="Account" asp-action="Profile">
+                                <i class="fas fa-user me-1"></i>@User.Identity.Name
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-link nav-link text-danger">
+                                    <i class="fas fa-sign-out-alt me-1"></i>تسجيل الخروج
+                                </button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link fw-bold" asp-controller="Account" asp-action="Login">تسجيل الدخول</a>
+                        </li>
+                    }
+
+
+
+                </ul>
+
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        @RenderBody()
+        <button class="btn-back" onclick="history.back()">⬅ رجوع</button>
+    </main>
+
+    <footer>
+        <div class="container text-center">
+            <p>© 2026 المنصة التعليمية - جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <div class="bottom-review-bar">
+        <a href="/AdminMenu/Reviews" class="review-stars-full-btn">
+            ⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐⭐
+        </a>
+    </div>
+</body>
+</html>
+
+<!-- Floating Buttons Script -->
+<script>
+        document.addEventListener("mousemove", function (e) {
+            const container = document.querySelector(".floating-buttons");
+
+            if (e.clientX > window.innerWidth - 150 && e.clientY > window.innerHeight - 150) {
+                container.classList.add("show-buttons");
+            } else {
+                container.classList.remove("show-buttons");
+            }
+        });
+
+    <script>
+    .dropdown-submenu {
+        position: relative;
+    }
+
+    .dropdown-submenu .dropdown-menu {
+        top: 0;
+        right: 100%;
+        margin-top: -5px;
+    }
+</script>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+@RenderSection("Scripts", required: false)

@@ -1,0 +1,136 @@
+@model ELearningPlatform.Models.Video
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container-fluid px-0" style="background:#111;">
+    <div class="container py-3">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item">
+                    <a asp-controller="Home" asp-action="Index" class="text-white-50">الرئيسية</a>
+                </li>
+                <li class="breadcrumb-item">
+                    <a asp-controller="Video" asp-action="Index" asp-route-courseId="@Model.CourseId"
+                       class="text-white-50">@Model.Course?.Title</a>
+                </li>
+                <li class="breadcrumb-item active text-white">@Model.Title</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<!-- Video Player -->
+<div style="background:#000;">
+    <div class="container px-0">
+        <video id="videoPlayer" controls class="w-100" style="max-height:70vh; display:block;"
+               controlsList="nodownload" oncontextmenu="return false;">
+            <!--<source src="@Model.StreamUrl" type="application/x-mpegURL" />-->
+         <!--   <source src="@Url.Action("Stream","Video",new{videoId=Model.Id})" type="video/mp4" />-->
+            <source src="@Model.StreamUrl" type="video/mp4" />
+            متصفحك لا يدعم تشغيل الفيديو.
+        </video>
+    </div>
+</div>
+
+<!-- Video Info -->
+<div class="container my-4">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <h3 class="fw-bold">@Model.Title</h3>
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <p class="text-muted">@Model.Description</p>
+            }
+
+            <div class="d-flex gap-3 mt-3">
+                <a asp-controller="Video" asp-action="Index" asp-route-courseId="@Model.CourseId"
+                   class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-right me-2"></i>العودة للكورس
+                </a>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="sidebar">
+                <h6 class="fw-bold mb-3 text-danger"><i class="fas fa-info-circle me-2"></i>معلومات الفيديو</h6>
+                <ul class="list-unstyled">
+                    <li class="mb-2 d-flex justify-content-between">
+                        <span class="text-muted">الكورس</span>
+                        <strong>@Model.Course?.Title</strong>
+                    </li>
+                    <li class="mb-2 d-flex justify-content-between">
+                        <span class="text-muted">الترتيب</span>
+                        <strong>@Model.OrderNumber</strong>
+                    </li>
+                    <li class="mb-2 d-flex justify-content-between">
+                        <span class="text-muted">النوع</span>
+                        @if (Model.IsFree)
+                        {
+                            <span class="badge bg-success">مجاني</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">مدفوع</span>
+                        }
+                    </li>
+                </ul>
+                <div class="sidebar">
+                    <h6 class="fw-bold mb-3 text-danger"><i class="fas fa-info-circle me-2"></i>معلومات الفيديو</h6>
+                    <ul class="list-unstyled">
+                        <li class="mb-2 d-flex justify-content-between">
+                            <span class="text-muted">الكورس</span>
+                            <strong>@Model.Course?.Title</strong>
+                        </li>
+                        <li class="mb-2 d-flex justify-content-between">
+                            <span class="text-muted">الترتيب</span>
+                            <strong>@Model.OrderNumber</strong>
+                        </li>
+                        <li class="mb-2 d-flex justify-content-between">
+                            <span class="text-muted">النوع</span>
+                            @if (Model.IsFree)
+                            {
+                                <span class="badge bg-success">مجاني</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-danger">مدفوع</span>
+                            }
+                        </li>
+                    </ul>
+
+                    <!-- زر أوراق العمل -->
+                    @if (Model.WorksheetFiles != null && Model.WorksheetFiles.Any())
+                    {
+                        <a asp-controller="Worksheet" asp-action="WorksheetView" asp-route-videoId="@Model.Id"
+                           class="btn btn-danger w-100 mt-3">
+                            <i class="fas fa-file-alt me-2"></i> أوراق العمل (@Model.WorksheetFiles.Count)
+                        </a>
+                    }
+                    else
+                    {
+                        <p class="text-muted mt-3">لا توجد أوراق عمل لهذا الدرس.</p>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Prevent right-click on video
+    document.getElementById('videoPlayer').addEventListener('contextmenu', e => e.preventDefault());
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', e => {
+        const v = document.getElementById('videoPlayer');
+        if (e.target.tagName === 'INPUT') return;
+        if (e.key === ' ' || e.key === 'k') { e.preventDefault(); v.paused ? v.play() : v.pause(); }
+        if (e.key === 'ArrowRight') v.currentTime += 10;
+        if (e.key === 'ArrowLeft') v.currentTime -= 10;
+        if (e.key === 'f') v.requestFullscreen?.();
+    });
+</script>
+}

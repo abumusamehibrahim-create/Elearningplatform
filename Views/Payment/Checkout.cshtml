@@ -1,0 +1,266 @@
+
+@{
+    ViewData["Title"] = "إتمام الدفع";
+    var course = ViewBag.Course as ELearningPlatform.Models.Course;
+    var stripeKey = ViewBag.StripeKey as string ?? "";
+}
+
+<div class="container my-5">
+    <div class="row justify-content-center g-4">
+
+        <!-- Order Summary -->
+        <div class="col-lg-4 order-lg-2">
+            <div class="card border-0 shadow-sm rounded-4 sticky-top" style="top:20px;">
+                <div class="card-header bg-danger text-white rounded-top-4 p-4">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-receipt me-2"></i>ملخص الطلب</h5>
+                </div>
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="bg-danger bg-opacity-10 rounded-3 p-3 me-3">
+                            <i class="fas fa-laptop-code fa-2x text-danger"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">@course?.Title</h6>
+                            <small class="text-muted">وصول مدى الحياة</small>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">سعر الكورس</span>
+                        <span>$@course?.Price</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">الضريبة</span>
+                        <span>$0.00</span>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+                        <span>الإجمالي</span>
+                        <span class="text-danger">$@course?.Price</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent p-4 pt-0">
+                    <ul class="list-unstyled small text-muted">
+                        <li class="mb-1"><i class="fas fa-shield-alt text-success me-2"></i>دفع آمن بتشفير SSL</li>
+                        <li class="mb-1"><i class="fas fa-infinity text-success me-2"></i>وصول مدى الحياة</li>
+                        <li class="mb-1"><i class="fas fa-user-check text-success me-2"></i>حساب خاص بك فوراً</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Form -->
+        <div class="col-lg-7 order-lg-1">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-5">
+                    <h3 class="fw-bold mb-2"><i class="fas fa-credit-card me-2 text-danger"></i>بيانات الدفع</h3>
+                    <p class="text-muted mb-4">أدخل بياناتك وسيتم إنشاء حسابك تلقائياً بعد الدفع</p>
+
+                    <!-- 🔥 UPDATED: Show server-side errors -->
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger">@TempData["Error"]</div>
+                    }
+
+                    <!-- 🔥 UPDATED: Add method="post" and asp-action -->
+                    <form id="payment-form" method="post" asp-action="ProcessPayment">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="courseId" value="@course?.Id" />
+
+                        <h6 class="fw-bold text-muted mb-3 text-uppercase" style="font-size:.75rem;letter-spacing:.1em;">
+                            معلومات شخصية
+                        </h6>
+
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">الاسم الكامل <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-user text-muted"></i>
+                                    </span>
+                                    <input type="text" id="fullName" name="fullName" class="form-control border-start-0 ps-0"
+                                           placeholder="محمد علي" required />
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">البريد الإلكتروني <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light border-end-0">
+                                        <i class="fas fa-envelope text-muted"></i>
+                                    </span>
+                                    <input type="email" id="email" name="email" class="form-control border-start-0 ps-0"
+                                           placeholder="email@example.com" required />
+                                </div>
+                                <div class="form-text text-muted">
+                                    <i class="fas fa-info-circle me-1"></i>سيتم إرسال بيانات الدخول على هذا الإيميل
+                                </div>
+                            </div>
+                        </div>
+
+                        <h6 class="fw-bold text-muted mb-3 text-uppercase" style="font-size:.75rem;letter-spacing:.1em;">
+                            بيانات البطاقة الائتمانية
+                        </h6>
+
+                        <!-- Stripe Card Element (kept exactly as is) -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">رقم البطاقة <span class="text-danger">*</span></label>
+                            <div id="card-element" class="form-control p-3"
+                                 style="height:50px; border-radius:8px; border:1px solid #dee2e6;">
+                            </div>
+                            <div id="card-errors" class="text-danger small mt-2" role="alert"></div>
+                        </div>
+
+                        <!-- Test card info (kept commented) -->
+                        <!--
+                        <div class="alert alert-info py-2 px-3 mb-4" style="font-size:.85rem;">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>بطاقة تجريبية:</strong>
+                            رقم: <code>4242 4242 4242 4242</code> — تاريخ: <code>12/34</code> — CVV: <code>123</code>
+                        </div>
+                        -->
+
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">رقم التحويل البنكي</label>
+                            <input type="text" name="transferNumber" class="form-control"
+                                   placeholder="ادخل رقم التحويل هنا" required />
+                        </div>
+
+                        <button type="submit" id="submit-btn" class="btn btn-danger btn-lg w-100 py-3">
+                            <span id="btn-text">
+                                <i class="fas fa-lock me-2"></i>ادفع الآن $@course?.Price
+                            </span>
+                            <span id="btn-spinner" class="d-none">
+                                <span class="spinner-border spinner-border-sm me-2"></span>جاري المعالجة...
+                            </span>
+                        </button>
+
+                        <p class="text-center text-muted small mt-3 mb-0">
+                            <i class="fas fa-lock me-1"></i>
+                            مدفوعاتك محمية بتشفير SSL 256-bit عبر Stripe
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 🔥 UPDATED: Simple JS to show loading spinner -->
+@section Scripts {
+    <script>
+        document.getElementById("payment-form").addEventListener("submit", function () {
+            document.getElementById("btn-text").classList.add("d-none");
+            document.getElementById("btn-spinner").classList.remove("d-none");
+        });
+    </script>
+}
+
+<!--
+//Scripts {
+//<script src="https://js.stripe.com/v3/"></script>
+//    //const stripe = Stripe('@stripeKey');
+    //const elements = stripe.elements({
+ //       locale: 'ar',
+  //      fonts: [{ cssSrc: 'https://fonts.googleapis.com/css?family=Cairo' }]
+  //  });
+
+ //   const style = {
+ //       base: {
+ //           color: '#32325d',
+  //          fontFamily: '"Segoe UI", Arial, sans-serif',
+  //          fontSmoothing: 'antialiased',
+  //          fontSize: '16px',
+  //          '::placeholder': { color: '#aab7c4' }
+  //      },
+  //      invalid: { color: '#fa755a', iconColor: '#fa755a' }
+ //   };
+
+  //  const cardElement = elements.create('card', { style, hidePostalCode: true });
+  //  cardElement.mount('#card-element');
+
+   // cardElement.on('change', ({ error }) => {
+  //      const display = document.getElementById('card-errors');
+  //      display.textContent = error ? error.message : '';
+  //  });
+
+    //document.getElementById('payment-form').addEventListener('submit', async (e) => {
+    //    e.preventDefault();
+
+     //   const fullName = document.getElementById('fullName').value.trim();
+    //    const email = document.getElementById('email').value.trim();
+
+    //    if (!fullName || !email) {
+     //       showAlert('danger', 'يرجى تعبئة جميع الحقول المطلوبة');
+      //      return;
+      //  }
+ //       if (!validateEmail(email)) {
+ //           showAlert('danger', 'يرجى إدخال بريد إلكتروني صحيح');
+//return;
+      //  }
+
+    //    setLoading(true);
+
+       // try {
+       //     // Create Stripe PaymentMethod
+       //     const { paymentMethod, error } = await stripe.createPaymentMethod({
+        //        type: 'card',
+       //         card: cardElement,
+       //         billing_details: { name: fullName, email: email }
+      //      });
+
+        //    if (error) {
+        //        document.getElementById('card-errors').textContent = error.message;
+        //        setLoading(false);
+       //         return;
+       //     }
+
+            // Submit to server
+          //  const formData = new FormData();
+         //   formData.append('courseId', '@course?.Id');
+        //    formData.append('email', email);
+        //    formData.append('fullName', fullName);
+          //  formData.append('stripeToken', paymentMethod.id);
+       //     formData.append('__RequestVerificationToken',
+        //        document.querySelector('[name=__RequestVerificationToken]').value);
+
+       //     const response = await fetch('/Payment/ProcessPayment', {
+        //        method: 'POST',
+       //         body: formData
+       //    });
+
+          //  if (response.redirected) {
+           //     window.location.href = response.url;
+           // } else if (response.ok) {
+          //      window.location.href = '/Payment/Success';
+         //   } else {
+          //      const text = await response.text();
+         //       showAlert('danger', 'حدث خطأ أثناء معالجة الدفع. يرجى المحاولة مرة أخرى.');
+         //   }
+     //   } catch (err) {
+     //       showAlert('danger', 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.');
+     //       console.error(err);
+      //  }
+
+       // setLoading(false);
+   // });
+
+ //   function setLoading(isLoading) {
+ //       document.getElementById('submit-btn').disabled = isLoading;
+ //       document.getElementById('btn-text').classList.toggle('d-none', isLoading);
+ //       document.getElementById('btn-spinner').classList.toggle('d-none', !isLoading);
+ //   }
+
+  //  function showAlert(type, message) {
+  //      const alert = document.getElementById('payment-alert');
+//        alert.className = `alert alert-${type}`;
+  //      alert.innerHTML = `<i class="fas fa-${type === 'danger' ? 'exclamation-triangle' : 'check-circle'} me-2"></i>${message}`;
+  //      alert.classList.remove('d-none');
+  //      alert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  //  }
+
+  //  function validateEmail(email) {
+    //    return /^[^\s@@]+@@[^\s@@]+\.[^\s@@]+$/.test(email);
+ //   }
+//<//script>
+//}
+-->

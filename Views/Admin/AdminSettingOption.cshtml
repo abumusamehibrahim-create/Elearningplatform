@@ -1,0 +1,43 @@
+﻿@model Video
+
+<form asp-action="UploadVideo" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" asp-for="CourseId" />
+    <input type="hidden" asp-for="Title" />
+    <input type="hidden" asp-for="OrderNumber" />
+    <input type="hidden" asp-for="IsFree" />
+
+    <div class="form-group">
+        <label>Upload Type</label>
+        <div>
+            <label>
+                <input type="radio" name="uploadType" value="Local" checked />
+                Local Server
+            </label>
+            <br />
+
+            <label>
+                <input type="radio" name="uploadType" value="Cloud" />
+                Cloud Server
+            </label>
+            <br />
+
+            <label>
+                <input type="radio" name="uploadType" value="Bunny" />
+                Bunny Stream
+            </label>
+        </div>
+    </div>
+
+    <div class="form-group mt-3">
+        <label>Video File (MP4)</label>
+        <input type="file" name="videoFile" class="form-control" required />
+    </div>
+
+    <div class="form-group mt-3">
+        <label>Worksheet File (Optional)</label>
+        <input type="file" name="worksheetFile" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-4">Upload Video</button>
+</form>

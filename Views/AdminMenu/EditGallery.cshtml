@@ -1,0 +1,32 @@
+﻿@model GalleryImage
+@{
+    Layout = "_Layout";
+}
+
+<h2>تعديل صورة</h2>
+
+@if (!string.IsNullOrEmpty(Model.FileName))
+{
+    <img src="/images/gallery/@Model.FileName" width="200" class="mb-3" />
+}
+else if (!string.IsNullOrEmpty(Model.ImageUrl))
+{
+    <img src="@Model.ImageUrl" width="200" class="mb-3" />
+}
+
+<form method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label>رفع صورة جديدة (اختياري)</label>
+        <input type="file" name="file" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>رابط صورة خارجي</label>
+        <input asp-for="ImageUrl" class="form-control" />
+    </div>
+
+    <button class="btn btn-warning">تحديث</button>
+    <a href="@Url.Action("Gallery", "AdminMenu")" class="btn btn-secondary">رجوع</a>
+</form>

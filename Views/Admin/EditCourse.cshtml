@@ -1,0 +1,49 @@
+﻿@model ELearningPlatform.Models.Course
+@{
+    ViewData["Title"] = "تعديل الكورس";
+    Layout = "_AdminLayout";
+}
+
+<h4 class="fw-bold mb-4">تعديل الكورس</h4>
+
+<form asp-action="EditCourse" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+
+    <div class="mb-3">
+        <label class="form-label">عنوان الكورس</label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">الوصف</label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">السعر</label>
+        <input asp-for="Price" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">الحالة</label>
+        <select asp-for="IsActive" class="form-select">
+            <option value="true">نشط</option>
+            <option value="false">موقوف</option>
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">صورة الكورس</label>
+        <input type="file" name="thumbnail" class="form-control" />
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.ThumbnailUrl))
+    {
+        <div class="mb-3">
+            <label class="form-label">الصورة الحالية:</label><br />
+            <img src="/thumbnails/@Model.ThumbnailUrl" width="200" class="rounded shadow" />
+        </div>
+    }
+
+    <button class="btn btn-danger px-4">حفظ التعديلات</button>
+</form>

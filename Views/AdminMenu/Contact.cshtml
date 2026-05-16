@@ -1,0 +1,101 @@
+﻿@{
+    Layout = "_Layout";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<section class="page-header">
+    <h1>@ViewBag.Header</h1>
+
+    @if (isAdmin)
+    {
+        <a href="/AdminMenu/EditablePage?page=Contact" class="admin-edit-btn">
+            تعديل الصفحة النص
+        </a>
+    }
+</section>
+
+<section class="page-content">
+    <p>@ViewBag.Paragraph</p>
+
+    <!-- باقي الصفحة كما هي 
+        نحن هنا لخدمتك والإجابة على جميع استفساراتك.
+        إذا كان لديك أي سؤال أو اقتراح أو مشكلة، لا تتردد في التواصل معنا عبر النموذج أدناه.
+        فريق الدعم جاهز لمساعدتك في أي وقت.-->
+    @if (isAdmin)
+    {
+        <div class="admin-email-box p-3 mb-4" style="background:#fff3cd; border-radius:10px;">
+            <h4>إعدادات البريد (مؤقتة — لا يتم تخزينها)</h4>
+
+            <div class="mb-2">
+                <label>إيميل الإرسال</label>
+                <input type="email" id="senderEmail" class="form-control" placeholder="your-email@gmail.com" />
+            </div>
+
+            <div class="mb-2">
+                <label>كلمة المرور (App Password)</label>
+                <input type="password" id="senderPassword" class="form-control" placeholder="********" />
+            </div>
+
+            <div class="mb-2">
+                <label>إيميل الاستقبال</label>
+                <input type="email" id="receiverEmail" class="form-control" placeholder="admin@gmail.com" />
+            </div>
+
+            <small class="text-muted">⚠ هذه الإعدادات لا تُخزن — تُستخدم فقط عند الإرسال.</small>
+        </div>
+    }
+
+    <form class="contact-form"
+          asp-controller="AdminMenu"
+          asp-action="SendMessage"
+          method="post"
+          onsubmit="attachAdminEmail()">
+
+        <!-- hidden fields to send admin email settings -->
+        <input type="hidden" name="senderEmail" id="hiddenSenderEmail" />
+        <input type="hidden" name="senderPassword" id="hiddenSenderPassword" />
+        <input type="hidden" name="receiverEmail" id="hiddenReceiverEmail" />
+
+        <div class="mb-3">
+            <label>الاسم الكامل</label>
+            <input type="text" name="fullName" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>البريد الإلكتروني</label>
+            <input type="email" name="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+            <label>الرسالة</label>
+            <textarea name="message" class="form-control" rows="5" required></textarea>
+        </div>
+
+        <button class="btn btn-danger">إرسال</button>
+    </form>
+
+</section>
+
+<style>
+    /* نفس CSS السابق */
+    .contact-form {
+        background: #fff;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        margin-top: 25px;
+    }
+</style>
+<script>
+    function attachAdminEmail() {
+
+        // إذا الأدمن موجود → نأخذ القيم
+        const senderEmail = document.getElementById("senderEmail")?.value || "";
+        const senderPassword = document.getElementById("senderPassword")?.value || "";
+        const receiverEmail = document.getElementById("receiverEmail")?.value || "";
+
+        document.getElementById("hiddenSenderEmail").value = senderEmail;
+        document.getElementById("hiddenSenderPassword").value = senderPassword;
+        document.getElementById("hiddenReceiverEmail").value = receiverEmail;
+    }
+</script>

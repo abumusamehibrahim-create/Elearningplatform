@@ -1,0 +1,53 @@
+﻿@{
+    Layout = "_Layout";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<h1>@ViewBag.Header</h1>
+
+@if (isAdmin)
+{
+    <a href="/AdminMenu/EditablePage?page=About" class="admin-edit-btn">تعديل الصفحة</a>
+}
+
+<p>@ViewBag.Paragraph</p>
+
+        <!--نحن منصة تعليمية تهدف إلى تقديم محتوى تعليمي عالي الجودة، مبني على أحدث الأساليب الحديثة في التعلم الإلكتروني.
+        نعمل على توفير بيئة تعليمية تفاعلية تساعد الطلاب على تطوير مهاراتهم وتحقيق أهدافهم.-->
+   
+
+<style>
+    .page-header {
+        background: linear-gradient(135deg, #ff4d4d, #ff9966);
+        padding: 40px;
+        border-radius: 18px;
+        color: #fff;
+        margin-bottom: 25px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+    .admin-edit-btn {
+        background: #fff;
+        color: #d40000;
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-weight: bold;
+        text-decoration: none;
+    }
+
+    .page-content {
+        background: #fff;
+        padding: 25px;
+        border-radius: 16px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        line-height: 2;
+        font-size: 18px;
+    }
+</style>

@@ -1,0 +1,44 @@
+﻿@{
+    Layout = "_Layout";
+    bool isAdmin = User.IsInRole("Admin");
+}
+
+<section class="page-header">
+    <h1>@ViewBag.Header</h1>
+
+    @if (isAdmin)
+    {
+        <a href="/AdminMenu/EditablePage?page=RefundPolicy" class="admin-edit-btn">
+            تعديل الصفحة
+        </a>
+    }
+</section>
+
+<section class="page-content">
+    <p>@ViewBag.Paragraph</p>
+</section>
+
+   <!-- <p>
+        نحرص على رضا جميع الطلاب، ولذلك نقدم سياسة استرجاع مرنة وواضحة.
+        يمكنك طلب استرجاع الرسوم خلال مدة محددة وفق الشروط التالية:
+    </p>
+
+    <ul>
+        <li>يحق للطالب طلب استرجاع خلال ٧ أيام من الاشتراك.</li>
+        <li>يجب ألا يكون الطالب قد أكمل أكثر من ٢٠٪ من محتوى الدورة.</li>
+        <li>يتم الاسترجاع عبر نفس وسيلة الدفع المستخدمة.</li>
+        <li>قد تستغرق عملية الاسترجاع من ٣ إلى ٧ أيام عمل.</li>
+    </ul>
+
+    <p>
+        لأي استفسار إضافي، يمكنك التواصل مع فريق الدعم.
+    </p>
+</section>-->
+
+<style>
+    ul {
+        line-height: 2;
+        font-size: 18px;
+        margin-top: 15px;
+    }
+</style>

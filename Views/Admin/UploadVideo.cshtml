@@ -1,0 +1,210 @@
+@{
+    ViewData["Title"] = "رفع فيديو";
+    Layout = "_AdminLayout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="stat-card">
+            <h5 class="fw-bold mb-4"><i class="fas fa-upload me-2 text-danger"></i>رفع فيديو جديد</h5>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger"><i class="fas fa-exclamation-triangle me-2"></i>@ViewBag.Error</div>
+            }
+            
+            <form asp-controller="Admin"
+                  asp-action="@(Model != null && Model.Id > 0 ? "UpdateVideo" : "UploadVideo")"
+                  method="post" enctype="multipart/form-data">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="courseId" value="@ViewBag.CourseId" />
+                @if (Model != null && Model.Id > 0)
+                {
+                    <input type="hidden" name="id" value="@Model.Id" />
+                }
+
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">عنوان الفيديو <span class="text-danger">*</span></label>
+                    <input type="text" name="title" class="form-control form-control-lg"
+                           placeholder="مثال: مقدمة في ASP.NET Core" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">وصف الفيديو</label>
+                    <textarea name="description" class="form-control" rows="3"
+                              placeholder="وصف مختصر لمحتوى الفيديو (اختياري)"></textarea>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">رقم الترتيب <span class="text-danger">*</span></label>
+                        <input type="number" name="orderNumber" class="form-control" value="1" min="1" required />
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" name="isFree" id="isFreeCheck" />
+                            <label class="form-check-label fw-semibold" for="isFreeCheck">
+                                فيديو مجاني (معاينة)
+                            </label>
+                        </div>
+                        
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold">ملف الفيديو <span class="text-danger">*</span></label>
+                    <div id="dropzone" class="border-2 border-dashed rounded-3 p-5 text-center"
+                         style="border:2px dashed #dee2e6; cursor:pointer; transition:all .2s;"
+                         onclick="document.getElementById('videoFile').click()"
+                         ondragover="handleDragOver(event)"
+                         ondrop="handleDrop(event)">
+                        <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                        <p class="fw-semibold mb-1">اسحب الفيديو هنا أو انقر للاختيار</p>
+                        <p class="text-muted small mb-0">MP4, WebM, MKV, AVI — الحجم الأقصى 2GB</p>
+                        <p id="file-name" class="text-danger fw-bold mt-2 d-none"></p>
+                    </div>
+                    <input type="file" name="videoFile" id="videoFile" accept="video/*"
+                           class="d-none" required onchange="showFileName(this)" />
+                </div>
+
+                <!-- ⭐⭐ التعديل الجديد هنا: رفع أوراق العمل ⭐⭐ -->
+                <div id="worksheet-area">
+                    <label class="fw-bold">أوراق العمل:</label>
+                    <input type="file" name="worksheetFiles" multiple class="form-control"
+                           accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.ppt,.pptx,.xls,.xlsx"  onchange="generateCheckboxes(this)" />
+                    <small class="text-muted">يمكن رفع أكثر من ملف</small>
+                    <div id="checkbox-container" class="mt-3"></div>
+                </div>
+                <script>
+                    function generateCheckboxes(input) {
+                        const container = document.getElementById("checkbox-container");
+                        container.innerHTML = "";
+
+                        for (let i = 0; i < input.files.length; i++) {
+                            const file = input.files[i];
+
+                            container.innerHTML += `
+                                <div class="form-check mt-2">
+                                    <input class="form-check-input" type="checkbox" name="allowDownload" value="true" checked />
+                                    <label class="form-check-label">
+                                        السماح بتنزيل: ${file.name}
+                                    </label>
+                                </div>
+                            `;
+                        }
+                    }
+                </script>
+                
+                <!-- ⭐⭐ نهاية التعديل ⭐⭐ -->
+                <!-- Upload progress -->
+                <div id="progress-area" class="d-none mb-3">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <span>جاري الرفع...</span>
+                        <span id="progress-pct">0%</span>
+                    </div>
+                    <div class="progress">
+                        <div id="progress-bar" class="progress-bar bg-danger progress-bar-striped progress-bar-animated"
+                             style="width:0%"></div>
+                    </div>
+                </div>
+                <!-- ⭐⭐ قسم الأسئلة ⭐⭐ -->
+                <div class="mt-4">
+                    <label class="fw-bold mb-2">أسئلة الفيديو (Worksheet Items):</label>
+
+                    <div id="questions-container">
+                        <div class="question-item mb-3 p-3 border rounded">
+                            <label class="form-label">السؤال الأول:</label>
+                            <input type="text" name="worksheetItems[0].Question" class="form-control" placeholder="اكتب السؤال هنا"  />
+
+                            <label class="form-label mt-2">الإجابة:</label>
+                            <input type="text" name="worksheetItems[0].Answer" class="form-control" placeholder="اكتب الإجابة (اختياري)" />
+
+                            <input type="hidden" name="worksheetItems[0].OrderNumber" value="1" />
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-outline-primary mt-2" onclick="addQuestion()">
+                        <i class="fas fa-plus"></i> إضافة سؤال جديد
+                    </button>
+                </div>
+
+                <script>
+                    let qIndex = 1;
+
+                    function addQuestion() {
+                        const container = document.getElementById("questions-container");
+
+                        container.insertAdjacentHTML("beforeend", `
+                            <div class="question-item mb-3 p-3 border rounded">
+                                <label class="form-label">السؤال رقم ${qIndex + 1}:</label>
+                                <input type="text" name="worksheetItems[${qIndex}].Question" class="form-control" placeholder="اكتب السؤال هنا" required />
+
+                                <label class="form-label mt-2">الإجابة:</label>
+                                <input type="text" name="worksheetItems[${qIndex}].Answer" class="form-control" placeholder="اكتب الإجابة (اختياري)" />
+
+                                <input type="hidden" name="worksheetItems[${qIndex}].OrderNumber" value="${qIndex + 1}" />
+                            </div>
+                        `);
+
+                        qIndex++;
+                    }
+                </script>
+                <!-- ⭐⭐ نهاية قسم الأسئلة ⭐⭐ -->
+
+                <div class="d-flex gap-2">
+                    <button type="submit" id="upload-btn" class="btn btn-danger btn-lg px-5">
+                        <i class="fas fa-upload me-2"></i>رفع الفيديو
+                    </button>
+                    <a asp-controller="Admin" asp-action="Videos" asp-route-courseId="@ViewBag.CourseId"
+                       class="btn btn-outline-secondary btn-lg">إلغاء</a>
+                   </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showFileName(input) {
+            if (input.files.length > 0) {
+                const name = input.files[0].name;
+                const size = (input.files[0].size / 1024 / 1024).toFixed(1);
+                const el = document.getElementById('file-name');
+                el.textContent = `✓ ${name} (${size} MB)`;
+                el.classList.remove('d-none');
+                document.getElementById('dropzone').style.borderColor = '#e74c3c';
+                document.getElementById('dropzone').style.background = '#fff5f5';
+            }
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('dropzone').style.borderColor = '#e74c3c';
+            document.getElementById('dropzone').style.background = '#fff5f5';
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('video/')) {
+                const input = document.getElementById('videoFile');
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                showFileName(input);
+            }
+        }
+
+        document.querySelector('form').addEventListener('submit', function () {
+            document.getElementById('progress-area').classList.remove('d-none');
+            document.getElementById('upload-btn').disabled = true;
+            let pct = 0;
+            const interval = setInterval(() => {
+                pct = Math.min(pct + Math.random() * 8, 95);
+                document.getElementById('progress-bar').style.width = pct + '%';
+                document.getElementById('progress-pct').textContent = Math.round(pct) + '%';
+            }, 400);
+        });
+    </script>
+}

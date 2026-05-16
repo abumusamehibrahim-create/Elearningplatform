@@ -1,0 +1,84 @@
+@model List<ELearningPlatform.Models.Video>
+@{
+    ViewData["Title"] = "محتوى الكورس";
+    var course = ViewBag.Course as ELearningPlatform.Models.Course;
+}
+
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <h2 class="fw-bold mb-1"><i class="fas fa-play-circle me-2 text-danger"></i>@course?.Title</h2>
+            <p class="text-muted mb-4">@course?.Description</p>
+
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success"><i class="fas fa-check-circle me-2"></i>@TempData["Success"]</div>
+            }
+
+            @foreach (var video in Model)
+            {
+                <div class="video-item d-flex align-items-center mb-3 rounded-3 shadow-sm"
+                     style="background:white; padding:16px; border-right:4px solid #e74c3c; cursor:pointer;"
+                     onclick="window.location.href='@Url.Action("Watch","Video",new{videoId=video.Id})'">
+                    <div class="me-3">
+                        <div class="bg-danger bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center"
+                             style="width:48px;height:48px;">
+                            <i class="fas fa-play text-danger"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="fw-bold">@video.OrderNumber. @video.Title</div>
+                        @if (!string.IsNullOrEmpty(video.Description))
+                        {
+                            <div class="text-muted small">@video.Description</div>
+                        }
+                    </div>
+                    <div class="ms-3">
+                        @if (video.IsFree)
+                        {
+                            <span class="badge bg-success">مجاني</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">مدفوع</span>
+                        }
+                    </div>
+                    <div class="ms-2">
+                        <i class="fas fa-chevron-left text-muted"></i>
+                    </div>
+                </div>
+            }
+
+            @if (!Model.Any())
+            {
+                <div class="text-center py-5">
+                    <i class="fas fa-video-slash fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">لا توجد فيديوهات في هذا الكورس بعد</p>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="sidebar">
+                <h6 class="fw-bold mb-3"><i class="fas fa-list me-2 text-danger"></i>محتويات الكورس</h6>
+                <div class="d-flex justify-content-between text-muted small mb-3">
+                    <span><i class="fas fa-video me-1"></i> @Model.Count فيديو</span>
+                    <span><i class="fas fa-unlock me-1"></i> @Model.Count(v => v.IsFree) مجاني</span>
+                </div>
+                <hr />
+                @foreach (var video in Model)
+                {
+                    <a asp-controller="Video" asp-action="Watch" asp-route-videoId="@video.Id"
+                       class="d-flex align-items-center py-2 text-decoration-none text-dark border-bottom">
+                        <i class="fas fa-play-circle text-danger me-2"></i>
+                        <span class="flex-grow-1 small">@video.OrderNumber. @video.Title</span>
+                        @if (video.IsFree)
+                        {
+                            <span class="badge bg-success-subtle text-success" style="font-size:.7rem;">مجاني</span>
+                        }
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,15 @@
+﻿@model License
+
+<h3>Your License Information</h3>
+
+@if (Model.ExpirationDate < DateTime.UtcNow)
+{
+    <div class="alert alert-danger">Your license has expired.</div>
+}
+else
+{
+    var days = (Model.ExpirationDate - DateTime.UtcNow).Days;
+    <div class="alert alert-success">
+        Your license expires in <strong>@days</strong> days.
+    </div>
+}

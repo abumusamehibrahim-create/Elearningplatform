@@ -1,0 +1,54 @@
+﻿@model ELearningPlatform.Models.ApplicationUser
+
+@{
+    ViewData["Title"] = "تعديل بيانات الأدمن";
+}
+
+<div class="container my-5">
+    <h2 class="fw-bold mb-4">تعديل بيانات الأدمن</h2>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <form method="post">
+
+        <div class="mb-3">
+            <label class="form-label">الاسم الكامل</label>
+            <input type="text" name="fullName" value="@Model.FullName" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">اسم المستخدم</label>
+            <input type="text" name="userName" value="@Model.UserName" class="form-control" required />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">البريد الإلكتروني</label>
+            <input type="email" name="email" value="@Model.Email" class="form-control" required />
+        </div>
+
+        <hr />
+
+        <h4 class="fw-bold">تغيير كلمة المرور</h4>
+        <p class="text-muted">اترك الحقول فارغة إذا لا تريد تغيير كلمة المرور.</p>
+
+        <div class="mb-3">
+            <label class="form-label">كلمة المرور القديمة</label>
+            <input type="password" name="oldPassword" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">كلمة المرور الجديدة</label>
+            <input type="password" name="newPassword" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">حفظ التغييرات</button>
+    </form>
+</div>

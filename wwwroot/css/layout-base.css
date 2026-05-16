@@ -1,0 +1,116 @@
+﻿/* ========================= GENERAL ========================= */
+
+body {
+    background: radial-gradient(circle at 20% 20%, #ffffff 0%, #e6e9f0 40%, #d4d7dd 100%);
+    color: #222;
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+    background-attachment: fixed;
+}
+
+/* ========================= NAVBAR ========================= */
+
+.navbar {
+    background: rgba(26, 26, 46, 0.75) !important;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+}
+
+.nav-link {
+    color: #fff !important;
+    transition: 0.25s ease;
+}
+
+    .nav-link:hover {
+        color: #ffdd66 !important;
+        transform: translateY(-2px);
+    }
+
+/* ========================= DROPDOWN FIX (IMPORTANT) ========================= */
+
+/* Default Bootstrap behavior */
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    z-index: 9999;
+    background: rgba(255,255,255,0.95);
+    border-radius: 14px;
+    padding: 12px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+}
+
+    /* When Bootstrap toggles dropdown */
+    .dropdown-menu.show {
+        display: block;
+    }
+
+/* Submenu */
+.dropdown-submenu {
+    position: relative;
+}
+
+    .dropdown-submenu .dropdown-menu {
+        top: 0;
+        right: 100%;
+        margin-top: -5px;
+    }
+
+    /* Hover support for submenu */
+    .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+    }
+
+/* Hover effect */
+.dropdown-item:hover {
+    background: rgba(255, 230, 150, 0.4);
+    transform: translateX(-6px);
+}
+
+/* ========================= TICKER ========================= */
+
+.ticker-container {
+    width: 100%;
+    overflow: hidden;
+    padding: 10px 0;
+    background: #000;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+.ticker-text {
+    display: inline-block;
+    white-space: nowrap;
+    padding-left: 100%;
+    animation: slideText 22s linear infinite;
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+}
+
+@keyframes slideText {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* ========================= FOOTER ========================= */
+
+footer {
+    background: rgba(26, 26, 46, 0.85);
+    padding: 20px;
+    color: #fff;
+}
+
+/* ========================= LOGO FIX ========================= */
+
+.logo-tiny {
+    height: 60px !important;
+    width: 60px !important;
+    max-height: 70px !important;
+    max-width: 70px !important;
+    object-fit: contain !important;
+    display: inline-block !important;
+}

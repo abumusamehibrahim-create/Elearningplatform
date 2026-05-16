@@ -1,0 +1,150 @@
+﻿@model MenuItem
+
+@{
+    var pagesList = new List<(string Name, string Url)>();
+    string pagesString = ViewBag.PagesString as string ?? "";
+
+    foreach (var part in pagesString.Split('|'))
+    {
+        var bits = part.Split(':');
+        if (bits.Length == 2)
+            pagesList.Add((bits[0], bits[1]));
+    }
+
+    var parentList = new List<(int Id, string Name)>();
+    string parentsString = ViewBag.MenuItemsString as string ?? "";
+
+    foreach (var part in parentsString.Split('|'))
+    {
+        var bits = part.Split(':');
+        if (bits.Length == 2 && int.TryParse(bits[0], out var id))
+            parentList.Add((id, bits[1]));
+    }
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fontawesome-iconpicker/3.2.0/css/fontawesome-iconpicker.min.css" />
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fontawesome-iconpicker/3.2.0/js/fontawesome-iconpicker.min.js"></script>
+
+<h2 class="mb-4">إضافة عنصر جديد للقائمة</h2>
+
+<form asp-action="Add" method="post" class="mt-4">
+
+    <div class="mb-3">
+        <label class="form-label">اسم العنصر</label>
+        <input asp-for="Name" class="form-control" placeholder="مثال: الرئيسية" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <!-- اختيار الصفحة (من pagesList) -->
+    <div class="mb-3">
+        <label class="form-label">الصفحة</label>
+        <select asp-for="Url" class="form-control">
+            <option value="">اختر صفحة...</option>
+
+            <option value="@Url.Action("Index", "Home")">Home</option>
+            <option value="@Url.Action("Index", "About")">About</option>
+            <option value="@Url.Action("Index", "Blog")">Blog</option>
+            <option value="@Url.Action("Index", "Category")">Category</option>
+            <option value="@Url.Action("Index", "Contact")">Contact</option>
+            <option value="@Url.Action("Index", "Courses")">Courses</option>
+            <option value="@Url.Action("Index", "FAQ")">FAQ</option>
+            <option value="@Url.Action("Index", "Offer")">Offer</option>
+            <option value="@Url.Action("Index", "Privacy")">Privacy</option>
+            <option value="@Url.Action("Index", "Terms")">Terms</option>
+
+        </select>
+        <span asp-validation-for="Url" class="text-danger"></span>
+    </div>
+
+    <!-- القائمة الرئيسية (من parentList) -->
+    <div class="mb-3">
+        <label class="form-label">القائمة الرئيسية (اختياري)</label>
+       
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">الترتيب *</label>
+        <input asp-for="Order" type="number" class="form-control" value="1" />
+        <span asp-validation-for="Order" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">الأيقونة *</label>
+        <select asp-for="Icon" class="form-control icon-select">
+            <option value="">اختر أيقونة...</option>
+
+            <option value="fa-solid fa-house">
+                🏠 الرئيسية
+            </option>
+
+            <option value="fa-solid fa-book">
+                📘 الدورات
+            </option>
+
+            <option value="fa-solid fa-phone">
+                📞 تواصل معنا
+            </option>
+
+            <option value="fa-solid fa-circle-info">
+                ℹ️ معلومات
+            </option>
+
+            <option value="fa-solid fa-tags">
+                🏷️ العروض
+            </option>
+
+            <option value="fa-solid fa-blog">
+                📝 المدونة
+            </option>
+
+            <option value="fa-solid fa-graduation-cap">
+                🎓 التعليم
+            </option>
+
+            <option value="fa-solid fa-star">
+                ⭐ المميز
+            </option>
+        </select>
+        <span asp-validation-for="Icon" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">الصلاحيات (Roles)</label>
+        <input asp-for="Roles" class="form-control" placeholder="Admin,Teacher" />
+        <small class="text-muted">اتركه فارغًا ليظهر للجميع</small>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">إظهار *</label>
+        <input asp-for="IsVisible" type="checkbox" />
+        <span asp-validation-for="IsVisible" class="text-danger"></span>
+    </div>
+
+    <button class="btn btn-success">إضافة</button>
+    <a asp-action="AdminMenuSetting" class="btn btn-secondary">رجوع</a>
+
+</form>
+
+<style>
+    .icon-select option {
+        font-size: 18px;
+        padding: 6px;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        $(function () {
+            $('.icon-picker').iconpicker({
+                title: 'اختر أيقونة',
+                placement: 'bottom',
+                animation: true
+            });
+        });
+    </script>
+}

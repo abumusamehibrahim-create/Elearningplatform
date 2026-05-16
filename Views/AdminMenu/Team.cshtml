@@ -1,0 +1,70 @@
+﻿@{
+    Layout = "_Layout";
+}
+
+<section class="page-header">
+    <h1><i class="fa-solid fa-users"></i> فريق العمل</h1>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <a href="/AdminTeam/Add" class="admin-edit-btn">
+            <i class="fa-solid fa-plus"></i> إضافة عضو جديد
+        </a>
+    }
+</section>
+
+<section class="page-content">
+    <p>
+        يضم فريقنا نخبة من الخبراء والمدربين المتخصصين في مجالات متعددة.
+        نعمل معاً لتقديم أفضل تجربة تعليمية للطلاب.
+    </p>
+</section>
+
+<div class="team-grid">
+    @foreach (var member in Model)
+    {
+        <div class="team-card">
+            <img src="@member.ImageUrl" class="team-img" />
+
+            <h4>@member.Name</h4>
+            <p class="role">@member.Role</p>
+
+            @if (User.IsInRole("Admin"))
+            {
+                <div class="admin-controls">
+                    <a href="/AdminTeam/Edit/@member.Id" class="btn btn-warning btn-sm">تعديل</a>
+                    <a href="/AdminTeam/Delete/@member.Id" class="btn btn-danger btn-sm">حذف</a>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .team-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 25px;
+        margin-top: 25px;
+    }
+
+    .team-card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 16px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+    }
+
+    .team-img {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .role {
+        color: #777;
+        margin-bottom: 10px;
+    }
+</style>

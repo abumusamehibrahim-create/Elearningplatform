@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="iTextSharp" Version="5.5.13.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.0" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="3.1.12" />
+    <PackageReference Include="Stripe.net" Version="43.0.0" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="ProtectedVideos\" />
+    <Folder Include="ProtectedWorksheetFile\" />
+    <Folder Include="wwwroot\images\gallery\" />
+    <Folder Include="wwwroot\thumbnails\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\ProtectedVideos\0b1fbc2ef15e46489de30c73366ad176.mp4" />
+    <None Include="wwwroot\ProtectedVideos\2ed5133aa7fd41b680490de5ee06a514.mp4" />
+    <None Include="wwwroot\ProtectedVideos\4e72c73984fa4048a2a6aebb7b8c7abb.mp4" />
+    <None Include="wwwroot\ProtectedVideos\5ade1226d14f4101891e0bc59a6ad25e.mp4" />
+    <None Include="wwwroot\ProtectedVideos\60d1f5c267a3442694612a04ca7b12f3.mp4" />
+    <None Include="wwwroot\ProtectedVideos\70e0cd339062438685c4352063e0c03d.mp4" />
+    <None Include="wwwroot\ProtectedVideos\8002aff0eed446629fd6593130362e39.mp4" />
+    <None Include="wwwroot\ProtectedVideos\86e242a4499a4309856faa7c51ad75e7.mp4" />
+    <None Include="wwwroot\ProtectedVideos\8ef39b1f68d9460bbfbf75260f019438.mp4" />
+    <None Include="wwwroot\ProtectedVideos\b1006389312e426790316e390f84ca17.mp4" />
+    <None Include="wwwroot\ProtectedVideos\baa2019ef5534ba1896d812b18a31cee.mp4" />
+    <None Include="wwwroot\ProtectedVideos\c26db6137da84d629183f9f83dfbf9e9.mp4" />
+    <None Include="wwwroot\ProtectedVideos\ee4dfbaddb454a9897834356e3e61db4.mp4" />
+    <None Include="wwwroot\ProtectedVideos\fb279d93999849048dc00703b6cad5f7.mp4" />
+    <None Include="wwwroot\ProtectedVideos\ff238a3f9c3c4306bd8cca098d1f2d4f.mp4" />
+  </ItemGroup>
+
+</Project>

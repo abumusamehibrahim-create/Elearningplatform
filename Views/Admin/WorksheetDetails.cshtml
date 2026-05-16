@@ -1,0 +1,66 @@
+﻿@model WorksheetViewModel
+
+<div class="container mt-4">
+
+    <h3 class="mb-4 text-primary">
+        <i class="fas fa-file-alt me-2"></i> أوراق العمل – @Model.Title
+    </h3>
+
+    <!-- ملفات أوراق العمل -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <i class="fas fa-download me-2"></i> ملفات أوراق العمل
+        </div>
+
+        <div class="card-body">
+            @if (Model.WorksheetFiles != null && Model.WorksheetFiles.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var file in Model.WorksheetFiles)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-file-pdf text-danger me-2"></i>
+                                @file.FileName
+                            </span>
+
+                            <a href="@file.FilePath" class="btn btn-sm btn-outline-danger" download>
+                                <i class="fas fa-download"></i> تحميل
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">لا توجد ملفات أوراق عمل لهذا الدرس.</p>
+            }
+        </div>
+    </div>
+
+    <!-- الأسئلة التفاعلية -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <i class="fas fa-question-circle me-2"></i> الأسئلة التفاعلية
+        </div>
+
+        <div class="card-body">
+            @if (Model.WorksheetItems != null && Model.WorksheetItems.Any())
+            {
+                <ol class="list-group list-group-numbered">
+                    @foreach (var item in Model.WorksheetItems)
+                    {
+                        <li class="list-group-item">
+                            <strong>سؤال:</strong> @item.Question
+                        </li>
+                    }
+                </ol>
+            }
+            else
+            {
+                <p class="text-muted">لا توجد أسئلة تفاعلية لهذا الدرس.</p>
+            }
+        </div>
+    </div>
+
+</div>

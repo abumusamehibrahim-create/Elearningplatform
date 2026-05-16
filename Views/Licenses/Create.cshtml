@@ -1,0 +1,68 @@
+﻿@model License
+
+<h2>Create License</h2>
+
+<!-- SUCCESS MESSAGE -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+<!-- SYSTEM ERROR MESSAGE -->
+@if (TempData["SystemError"] != null)
+{
+    <div class="alert alert-danger">@TempData["SystemError"]</div>
+}
+
+<!-- USER ERRORS -->
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-warning">
+        @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+        {
+            <div>@error.ErrorMessage</div>
+        }
+    </div>
+}
+
+<form method="post" action="/Licenses/Create">
+    <div class="form-group mb-3">
+        <label>Client Name</label>
+        <input class="form-control" name="ClientName" value="@Model?.ClientName" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Domain</label>
+        <input class="form-control" name="Domain" value="@Model?.Domain" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>License Key</label>
+        <div class="input-group">
+            <input class="form-control" id="LicenseKey" name="LicenseKey" value="@Model?.LicenseKey" />
+            <button type="button" class="btn btn-primary" onclick="generateKey()">Generate</button>
+        </div>
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Expiration Date</label>
+        <input class="form-control" type="datetime-local" name="ExpirationDate"
+               value="@(Model?.ExpirationDate.ToString("yyyy-MM-ddTHH:mm"))" />
+    </div>
+
+    <div class="form-group mb-3">
+        <label>Active</label>
+        <input type="checkbox" name="IsActive" value="true" @(Model.IsActive ? "checked" : "") />
+        <input type="hidden" name="IsActive" value="false" />
+    </div>
+
+    <button class="btn btn-success mt-3">Save</button>
+</form>
+
+<script>
+    function generateKey() {
+        fetch('/Licenses/GenerateKey?client=' + document.querySelector('[name=ClientName]').value)
+            .then(r => r.text())
+            .then(key => document.getElementById('LicenseKey').value = key);
+    }
+</script>

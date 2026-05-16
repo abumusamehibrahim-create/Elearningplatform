@@ -1,0 +1,82 @@
+﻿@model IEnumerable<ELearningPlatform.Models.Payment>
+
+@{
+    ViewData["Title"] = "مراجعة المدفوعات";
+}
+
+<div class="container my-5">
+    <h2 class="fw-bold mb-4">مراجعة المدفوعات المعلقة</h2>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+
+    <table class="table table-bordered table-striped text-center">
+        <thead class="table-dark">
+            <tr>
+                <th>اسم الطالب</th>
+                <th>البريد</th>
+                <th>اسم المستخدم</th>
+                <th>كلمة المرور</th>
+                <th>الدورة</th>
+                <th>المبلغ</th>
+                <th>رقم التحويل</th>
+                <th>التاريخ</th>
+                <th>إجراءات</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var p in Model)
+            {
+                <tr>
+                    <td>@p.User.FullName</td>
+                    <td>@p.User.Email</td>
+                    <td>@p.User.UserName</td>
+                    <td>@p.User.PlainPassword</td>
+                    <td>@(p.Course?.Title ?? "—")</td>
+                    <td>@p.Amount</td>
+                    <td>@p.StripePaymentId</td>
+                    <td>@p.PaymentDate.ToString("yyyy-MM-dd")</td>
+
+                    <td>
+                        <!-- قبول -->
+                        <a asp-action="ApprovePayment" asp-route-id="@p.Id" class="btn btn-success btn-sm">
+                            <i class="fas fa-check"></i> قبول
+                        </a>
+
+                        <!-- رفض -->
+                        <a href="@Url.Action("RejectPayment", "Admin", new { id = p.Id })"
+                           class="btn btn-danger btn-sm"
+                           onclick="return confirmReject('@p.Status');">
+                            <i class="fas fa-times"></i> رفض
+                        </a>
+
+                        <!-- حذف -->
+                        <form asp-action="DeletePayment" method="post" class="d-inline"
+                              onsubmit="return confirm('@( p.Status == "Approved"
+                                                               ? "❌ لا يمكن حذف دفعة مقبولة"
+                                                               : (p.User?.Payments?.Count(x => x.CourseId != null && x.CourseId == p.CourseId) ?? 0) == 1
+                                                                     ? "⚠ هذا الدفع هو الوحيد لهذا الكورس، سيتم إلغاء تفعيل الكورس من حساب الطالب. هل تريد المتابعة؟"
+                                                                     : "هل أنت متأكد من حذف هذا الدفع؟")')">
+                        <input type="hidden" name="id" value="@p.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fas fa-trash"></i> حذف
+                        </button>
+                    </form>
+                </td>
+            </tr>
+                        }
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function confirmReject(status) {
+        if (status === "Approved") {
+            return confirm("⚠ هذا الدفع مقبول بالفعل. هل تريد رفضه؟");
+        }
+        return confirm("هل أنت متأكد أنك تريد رفض هذا الدفع؟");
+    }
+</script>

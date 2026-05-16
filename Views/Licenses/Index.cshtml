@@ -1,0 +1,40 @@
+﻿@model IEnumerable<License>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+
+@if (TempData["SystemError"] != null)
+{
+    <div class="alert alert-danger">@TempData["SystemError"]</div>
+}
+
+<h2>Licenses</h2>
+
+<a class="btn btn-primary" href="/Licenses/Create">Add License</a>
+
+
+<table class="table table-bordered mt-3">
+    <tr>
+        <th>Client</th>
+        <th>Domain</th>
+        <th>Key</th>
+        <th>Expiration</th>
+        <th>Active</th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.ClientName</td>
+            <td>@item.Domain</td>
+            <td>@item.LicenseKey</td>
+            <td>@item.ExpirationDate</td>
+            <td>@item.IsActive</td>
+            <td><a href="/Licenses/Edit/@item.Id" class="btn btn-sm btn-warning">Edit</a></td>
+            <td><a href="/Licenses/Delete/@item.Id" class="btn btn-sm btn-warning">Delete</a></td>
+
+        </tr>
+    }
+</table>

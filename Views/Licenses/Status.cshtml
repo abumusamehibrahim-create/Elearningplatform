@@ -1,0 +1,21 @@
+﻿@model License
+
+<h2>License Status</h2>
+
+<table class="table table-bordered">
+    <tr><th>Client Name</th><td>@Model.ClientName</td></tr>
+    <tr><th>Domain</th><td>@Model.Domain</td></tr>
+    <tr><th>License Key</th><td>@Model.LicenseKey</td></tr>
+    <tr><th>Expiration Date</th><td>@Model.ExpirationDate</td></tr>
+    <tr><th>Is Active</th><td>@Model.IsActive</td></tr>
+</table>
+
+@if (Model.ExpirationDate < DateTime.UtcNow)
+{
+    <div class="alert alert-danger">License expired</div>
+}
+else
+{
+    var days = (Model.ExpirationDate - DateTime.UtcNow).Days;
+    <div class="alert alert-info">License expires in @days days</div>
+}

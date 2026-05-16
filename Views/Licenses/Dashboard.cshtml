@@ -1,0 +1,53 @@
+﻿@model List<License>
+
+<h2>License Dashboard</h2>
+@if (User.IsInRole("SuperAdmin"))
+{
+    <a href="/ClientSettings/Index" class="btn btn-primary mb-3">
+        <i class="fa-solid fa-gear me-1"></i> Client Settings
+    </a>
+   
+
+}
+<div class="row">
+    @foreach (var item in Model)
+    {
+        <div class="col-md-4">
+            <div class="card mb-3 border-primary">
+                <div class="card-header">
+                    @item.ClientName
+                </div>
+                <div class="card-body">
+                    <p><strong>Domain:</strong> @item.Domain</p>
+                    <p><strong>Key:</strong> @item.LicenseKey</p>
+                    <p><strong>Expiration:</strong> @item.ExpirationDate</p>
+
+                    @{
+                        var daysLeft = (item.ExpirationDate - DateTime.UtcNow).Days;
+                    }
+
+                    <p><strong>Days Left:</strong> @daysLeft</p>
+
+                    @if (!item.IsActive)
+                    {
+                        <span class="badge bg-danger">Disabled</span>
+                    }
+                    else if (item.ExpirationDate < DateTime.UtcNow)
+                    {
+                        <span class="badge bg-danger">Expired</span>
+                    }
+                    else if (daysLeft <= 30)
+                    {
+                        <span class="badge bg-warning text-dark">Expiring Soon</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Active</span>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<a href="/Licenses/Index" class="btn btn-secondary mt-3">Manage Licenses</a>

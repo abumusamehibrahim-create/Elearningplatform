@@ -1,0 +1,328 @@
+﻿@model List<Review>
+@{
+    Layout = "_Layout";
+}
+
+<section class="page-header">
+    <h1><i class="fa-solid fa-star"></i> آراء الطلاب</h1>
+</section>
+
+<!-- ⭐ Average Rating -->
+<div class="avg-rating-box">
+    <h3>متوسط التقييم: @Math.Round((double)ViewBag.AvgRating, 1) ⭐</h3>
+</div>
+
+<!-- ⭐ Filter -->
+<div class="filter-box">
+    <form method="get" action="/AdminMenu/Reviews">
+
+        <div class="star-filter">
+
+            <input type="radio" id="f0" name="ratingFilter" value="0"
+                   onchange="this.form.submit()" @(ViewBag.RatingFilter == 0 ? "checked" : "") />
+            <label for="f0">الكل</label>
+
+            <input type="radio" id="f5" name="ratingFilter" value="5"
+                   onchange="this.form.submit()" @(ViewBag.RatingFilter == 5 ? "checked" : "") />
+            <label for="f5">⭐⭐⭐⭐⭐</label>
+
+            <input type="radio" id="f4" name="ratingFilter" value="4"
+                   onchange="this.form.submit()" @(ViewBag.RatingFilter == 4 ? "checked" : "") />
+            <label for="f4">⭐⭐⭐⭐</label>
+
+            <input type="radio" id="f3" name="ratingFilter" value="3"
+                   onchange="this.form.submit()" @(ViewBag.RatingFilter == 3 ? "checked" : "") />
+            <label for="f3">⭐⭐⭐</label>
+
+            <input type="radio" id="f2" name="ratingFilter" value="2"
+                   onchange="this.form.submit()" @(ViewBag.RatingFilter == 2 ? "checked" : "") />
+            <label for="f2">⭐⭐</label>
+
+            <input type="radio" id="f1" name="ratingFilter" value="1"
+                   onchange="this.form.submit()" @(ViewBag.RatingFilter == 1 ? "checked" : "") />
+            <label for="f1">⭐</label>
+
+        </div>
+
+    </form>
+</div>
+
+<style>
+    .star-filter {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        font-size: 1.4rem;
+        cursor: pointer;
+    }
+
+        .star-filter input {
+            display: none;
+        }
+
+        .star-filter label {
+            padding: 5px 10px;
+            border-radius: 8px;
+            background: #eee;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .star-filter input:checked + label {
+            background: #ffcc00;
+            color: #000;
+            font-weight: bold;
+        }
+</style>
+
+  
+
+
+
+
+<!-- ⭐ Reviews Grid -->
+<div class="reviews-container">
+
+    @foreach (var review in Model)
+    {
+        <div class="review-card">
+
+            @if (!string.IsNullOrEmpty(review.ImageUrl))
+            {
+                <img src="@review.ImageUrl" class="review-img" />
+            }
+            else
+            {
+                <img src="/images/default-user.png" class="review-img" />
+            }
+
+            <h4>@review.StudentName</h4>
+
+            <div class="stars">
+                @for (int i = 0; i < review.Rating; i++)
+                {
+                    <i class="fa-solid fa-star"></i>
+                }
+            </div>
+
+            <p>@review.Comment</p>
+
+            <div class="admin-controls">
+                <a href="/AdminMenu/EditReview/@review.Id" class="btn btn-warning btn-sm">تعديل</a>
+                <a href="/AdminMenu/DeleteReview/@review.Id" class="btn btn-danger btn-sm">حذف</a>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- ⭐ Pagination -->
+<div class="pagination-box">
+    @for (int i = 1; i <= ViewBag.TotalPages; i++)
+    {
+        <a href="/AdminMenu/Reviews?page=@i&ratingFilter=@ViewBag.RatingFilter"
+           class="page-btn @(i == ViewBag.CurrentPage ? "active" : "")">@i</a>
+    }
+</div>
+
+<hr />
+
+<!-- ⭐ Card Form -->
+<div class="card shadow-lg p-4 mt-4" style="border-radius: 18px;">
+    <h3 class="mb-3 fw-bold">إضافة تقييم جديد</h3>
+
+    <form asp-action="AddReview" method="post" id="reviewForm">
+
+        <!-- Student Name -->
+        <div class="mb-3">
+            <label class="fw-bold">اسم الطالب</label>
+            <input type="text" name="studentName" class="form-control" required />
+            <small class="text-danger d-none" id="nameError">❌ الرجاء كتابة اسم الطالب</small>
+        </div>
+
+        <!-- ⭐ Interactive Stars -->
+        <div class="mb-3">
+            <label class="fw-bold">التقييم</label>
+
+            <div class="star-rating">
+                <input type="radio" id="star5" name="rating" value="5" />
+                <label for="star5">★</label>
+
+                <input type="radio" id="star4" name="rating" value="4" />
+                <label for="star4">★</label>
+
+                <input type="radio" id="star3" name="rating" value="3" />
+                <label for="star3">★</label>
+
+                <input type="radio" id="star2" name="rating" value="2" />
+                <label for="star2">★</label>
+
+                <input type="radio" id="star1" name="rating" value="1" />
+                <label for="star1">★</label>
+            </div>
+
+            <small class="text-danger d-none" id="ratingError">❌ الرجاء اختيار تقييم</small>
+        </div>
+
+        <!-- Comment -->
+        <div class="mb-3">
+            <label class="fw-bold">التعليق</label>
+            <textarea name="comment" class="form-control" rows="3" required></textarea>
+            <small class="text-danger d-none" id="commentError">❌ الرجاء كتابة التعليق</small>
+        </div>
+
+        <button class="btn btn-primary fw-bold px-4">إرسال التقييم</button>
+
+    </form>
+</div>
+
+<!-- ⭐ Toast Messages -->
+<div class="toast-container position-fixed bottom-0 end-0 p-3">
+
+    <div id="successToast" class="toast align-items-center text-bg-success border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">✔ تم إرسال التقييم بنجاح</div>
+        </div>
+    </div>
+
+    <div id="errorToast" class="toast align-items-center text-bg-danger border-0" role="alert">
+        <div class="d-flex">
+            <div class="toast-body">❌ الرجاء تعبئة جميع الحقول</div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ⭐ CSS -->
+<style>
+    .avg-rating-box {
+        background: #fff3cd;
+        padding: 15px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+    }
+
+    .filter-box {
+        margin-bottom: 20px;
+        width: 200px;
+    }
+
+    .reviews-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+        gap: 25px;
+        margin-top: 25px;
+    }
+
+    .review-card {
+        background: #fff;
+        border-radius: 18px;
+        padding: 20px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        text-align: center;
+    }
+
+    .review-img {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .stars i {
+        color: #ffcc00;
+    }
+
+    .pagination-box {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+    .page-btn {
+        padding: 8px 14px;
+        margin: 3px;
+        border-radius: 8px;
+        background: #eee;
+        text-decoration: none;
+        color: #333;
+    }
+
+    .page-btn.active {
+        background: #ff4d4d;
+        color: #fff;
+        font-weight: bold;
+    }
+
+    .star-rating {
+        direction: rtl;
+        display: inline-flex;
+        font-size: 2rem;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+    }
+
+    .star-rating:hover {
+        transform: scale(1.05);
+    }
+
+    .star-rating input { display: none; }
+
+    .star-rating label {
+        color: #ccc;
+        transition: color 0.2s, transform 0.2s;
+        padding: 0 3px;
+    }
+
+    .star-rating label:hover {
+        transform: scale(1.2);
+    }
+
+    .star-rating input:checked ~ label,
+    .star-rating label:hover,
+    .star-rating label:hover ~ label {
+        color: gold;
+    }
+</style>
+
+<!-- ⭐ JS Validation + Toast -->
+<script>
+    document.getElementById("reviewForm").addEventListener("submit", function (e) {
+
+        let valid = true;
+
+        let name = document.querySelector("input[name='studentName']").value.trim();
+        let rating = document.querySelector("input[name='rating']:checked");
+        let comment = document.querySelector("textarea[name='comment']").value.trim();
+
+        // Reset errors
+        document.getElementById("nameError").classList.add("d-none");
+        document.getElementById("ratingError").classList.add("d-none");
+        document.getElementById("commentError").classList.add("d-none");
+
+        if (name === "") {
+            document.getElementById("nameError").classList.remove("d-none");
+            valid = false;
+        }
+
+        if (!rating) {
+            document.getElementById("ratingError").classList.remove("d-none");
+            valid = false;
+        }
+
+        if (comment === "") {
+            document.getElementById("commentError").classList.remove("d-none");
+            valid = false;
+        }
+
+        if (!valid) {
+            e.preventDefault();
+            let toast = new bootstrap.Toast(document.getElementById("errorToast"));
+            toast.show();
+        } else {
+            let toast = new bootstrap.Toast(document.getElementById("successToast"));
+            toast.show();
+        }
+    });
+</script>

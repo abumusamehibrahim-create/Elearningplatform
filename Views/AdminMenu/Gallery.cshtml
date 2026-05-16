@@ -1,0 +1,45 @@
+﻿@model List<GalleryImage>
+@{
+    Layout = "_Layout";
+}
+
+<h2>معرض الصور</h2>
+
+@if (User.IsInRole("Admin"))
+{
+    <a href="@Url.Action("AddGallery", "AdminMenu")" class="btn btn-primary mb-3">إضافة صورة</a>
+}
+
+<div class="row mt-4">
+    @foreach (var img in Model)
+    {
+        <div class="col-md-3 mb-3">
+            <div class="card">
+
+                @if (!string.IsNullOrEmpty(img.FileName))
+                {
+                    <img src="/images/gallery/@img.FileName" class="card-img-top" />
+                }
+                else if (!string.IsNullOrEmpty(img.ImageUrl))
+                {
+                    <img src="@img.ImageUrl" class="card-img-top" />
+                }
+                else
+                {
+                    <div class="p-4 text-center text-muted">لا توجد صورة</div>
+                }
+
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="card-body text-center">
+                        <a href="@Url.Action("EditGallery", "AdminMenu", new { id = img.Id })"
+                           class="btn btn-warning btn-sm">تعديل</a>
+
+                        <a href="@Url.Action("DeleteGallery", "AdminMenu", new { id = img.Id })"
+                           class="btn btn-danger btn-sm">حذف</a>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>

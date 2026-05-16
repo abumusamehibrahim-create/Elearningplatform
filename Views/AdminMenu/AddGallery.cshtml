@@ -1,0 +1,21 @@
+﻿@model GalleryImage
+@{
+    Layout = "_Layout";
+}
+
+<h2>إضافة صورة جديدة</h2>
+
+<form method="post" enctype="multipart/form-data">
+    <div class="mb-3">
+        <label>رفع صورة</label>
+        <input type="file" name="file" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>رابط صورة خارجي (اختياري)</label>
+        <input asp-for="ImageUrl" class="form-control" />
+    </div>
+
+    <button class="btn btn-success">حفظ</button>
+    <a href="@Url.Action("Gallery", "AdminMenu")" class="btn btn-secondary">رجوع</a>
+</form>

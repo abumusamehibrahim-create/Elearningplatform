@@ -1,0 +1,354 @@
+﻿@{
+    ViewData["Title"] = "SuperAdmin Dashboard";
+}
+
+<style>
+    body {
+        background: #0b1020;
+        color: #f8f9fa;
+    }
+
+    .card {
+        background: #151a2b;
+        border-radius: 12px;
+    }
+
+    .card h3, .card h2, .card h1 {
+        color: #f8f9fa;
+    }
+
+    .btn-danger {
+        background: #c82333;
+        border-color: #bd2130;
+    }
+
+    .btn-danger:hover {
+        background: #e3342f;
+        border-color: #cc1f1a;
+    }
+
+    .alert-danger {
+        background: #3b0d0c;
+        color: #f8d7da;
+        border-color: #721c24;
+    }
+</style>
+
+<div class="container mt-5">
+
+    <h1 class="text-danger fw-bold mb-4">⚠️ SuperAdmin Dashboard</h1>
+    <div class="mb-4">
+        <a href="/" class="btn btn-secondary">🏠 Back to Home</a>
+    </div>
+    <div class="mb-4">
+        <a href="/ActivityLog" class="btn btn-info">📜 View Activity Logs</a>
+    </div>
+
+    <div class="alert alert-danger border-3 border-danger p-4">
+        <h4 class="fw-bold">🚨 WARNING: HIGH‑RISK OPERATIONS</h4>
+        <p class="mb-0">
+            This dashboard contains extremely dangerous actions that permanently delete data.
+            Only <strong>SuperAdmin</strong> can access this page.
+            Deleted data <strong>cannot be recovered</strong>.
+        </p>
+    </div>
+
+    <div class="card shadow mb-4 border-danger">
+        <div class="card-body">
+            <h4 class="text-danger fw-bold">🔑 SuperAdmin Password Required</h4>
+            <p class="mb-2">
+                For every dangerous action on this page, you must enter the current SuperAdmin password.
+            </p>
+            <input id="superAdminPassword" type="password" class="form-control" placeholder="Enter SuperAdmin password" />
+        </div>
+    </div>
+
+    <hr class="border-danger" />
+    <div class="card shadow mb-4 border-info">
+        <div class="card-body">
+            <h3 class="text-info">📦 Create Backup Snapshot</h3>
+            <p>
+                This creates a lightweight snapshot of system statistics (counts of users, courses, videos, payments, logs).
+                It is NOT a full backup, but useful for auditing.
+            </p>
+
+            <button class="btn btn-info text-dark fw-bold"
+                    onclick="confirmBackup()">
+                📦 Create Backup Snapshot
+            </button>
+        </div>
+    </div>
+
+    <!-- USERS -->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary">🧑‍💻 Delete All Users (Except SuperAdmin)</h3>
+            <p>This will delete ALL users, students, instructors, admins — except the SuperAdmin.</p>
+
+            <button class="btn btn-danger"
+                    onclick="confirmDelete('DeleteUsers',
+                    'Deleting all users except SuperAdmin. This action is irreversible.')">
+                Delete Users
+            </button>
+        </div>
+    </div>
+    <!--------------------------clean up file not connected  to data base-------------------------------------------->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary"> 🧹 Clean Orphan Files will delete all video and worksheet files not linke to database
+            </h3>        
+            <p>This will delete all video and worksheet files that are not linked to any database record.</p>
+                <a href="/SuperAdminDashboard/CleanOrphanFiles"
+               class="btn btn-danger fw-bold"
+               onclick="return confirm('Are you sure you want to clean orphan files?');">
+                🗑️ Clean Now
+            </a>
+        </div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary">💳 Delete All Payments</h3>
+            <p>Deletes all payment history, subscriptions, and transactions.</p>
+
+            <button class="btn btn-danger"
+                    onclick="confirmDelete('DeletePayments',
+                    'All payment records will be permanently deleted.')">
+                Delete Payments
+            </button>
+        </div>
+    </div>
+
+    <!-- COURSES -->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary">📚 Delete All Courses & Videos</h3>
+            <p>Deletes all courses, videos, worksheets, and student course enrollments.</p>
+
+            <button class="btn btn-danger"
+                    onclick="confirmDelete('DeleteCourses',
+                    'All courses, videos, and worksheets will be deleted.')">
+                Delete Courses & Videos
+            </button>
+        </div>
+    </div>
+
+    <!-- LOGS -->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary">📜 Delete All Logs</h3>
+            <p>Deletes all activity logs and page visit logs.</p>
+
+            <button class="btn btn-danger"
+                    onclick="confirmDelete('DeleteLogs',
+                    'All logs will be permanently deleted.')">
+                Delete Logs
+            </button>
+        </div>
+    </div>
+
+    <!-- MENU -->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary">📂 Delete All Menu Items</h3>
+            <p>Deletes all custom menu items.</p>
+
+            <button class="btn btn-danger"
+                    onclick="confirmDelete('DeleteMenu',
+                    'All menu items will be deleted.')">
+                Delete Menu Items
+            </button>
+        </div>
+    </div>
+
+    <!-- REVIEWS -->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary">⭐ Delete All Reviews</h3>
+            <p>Deletes all student reviews.</p>
+
+            <button class="btn btn-danger"
+                    onclick="confirmDelete('DeleteReviews',
+                    'All reviews will be deleted.')">
+                Delete Reviews
+            </button>
+        </div>
+    </div>
+
+    <!-- GALLERY -->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary">🖼️ Delete All Gallery Images</h3>
+            <p>Deletes all gallery images.</p>
+
+            <button class="btn btn-danger"
+                    onclick="confirmDelete('DeleteGallery',
+                    'All gallery images will be deleted.')">
+                Delete Gallery
+            </button>
+        </div>
+    </div>
+
+    <!-- TEAM -->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary">👥 Delete All Team Members</h3>
+            <p>Deletes all team member profiles.</p>
+
+            <button class="btn btn-danger"
+                    onclick="confirmDelete('DeleteTeam',
+                    'All team members will be deleted.')">
+                Delete Team Members
+            </button>
+        </div>
+    </div>
+
+    <!-- PAGE CONTENT -->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary">📄 Delete All Page Content</h3>
+            <p>Deletes all editable page content (About, Home sections, etc).</p>
+
+            <button class="btn btn-danger"
+                    onclick="confirmDelete('DeletePageContent',
+                    'All page content will be deleted.')">
+                Delete Page Content
+            </button>
+        </div>
+    </div>
+
+    <!-- FAQ -->
+    <div class="card shadow mb-4 border-warning">
+        <div class="card-body">
+            <h3 class="text-primary">❓ Delete All FAQ Items</h3>
+            <p>Deletes all FAQ questions and answers.</p>
+
+            <button class="btn btn-danger"
+                    onclick="confirmDelete('DeleteFaq',
+                    'All FAQ items will be deleted.')">
+                Delete FAQ
+            </button>
+        </div>
+    </div>
+
+    <hr class="border-danger" />
+
+    <!-- FACTORY RESET -->
+    <div class="card shadow border-danger mb-5">
+        <div class="card-body">
+            <h2 class="text-danger fw-bold">🔥 FACTORY RESET</h2>
+
+            <div class="alert alert-danger border-danger">
+                <strong>⚠️ WARNING:</strong><br />
+                This will delete EVERYTHING except the SuperAdmin account.
+                This is the most dangerous operation in the system.
+            </div>
+
+            <label class="fw-bold">Type <span class="text-danger">RESET</span> to confirm:</label>
+            <input id="resetConfirm" class="form-control mb-3" placeholder="Type RESET here" />
+
+            <button class="btn btn-lg btn-danger"
+                    onclick="factoryReset()">
+                🔥 Perform Factory Reset
+            </button>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        function getPassword() {
+            return document.getElementById("superAdminPassword").value || "";
+        }
+
+        function confirmDelete(action, warning) {
+            const password = getPassword();
+            if (!password) {
+                alert("❌ Please enter SuperAdmin password first.");
+                return;
+            }
+
+            if (!confirm("⚠️ WARNING:\n" + warning + "\n\nAre you absolutely sure?")) return;
+
+            const formData = new URLSearchParams();
+            formData.append("password", password);
+
+            fetch('/SuperAdminDashboard/' + action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+                .then(r => r.json())
+                .then(res => alert(res.message))
+                .catch(() => alert("❌ Error performing operation."));
+        }
+
+        function factoryReset() {
+            const password = getPassword();
+            if (!password) {
+                alert("❌ Please enter SuperAdmin password first.");
+                return;
+            }
+
+            const text = document.getElementById("resetConfirm").value;
+            if (text !== "RESET") {
+                alert("❌ You must type RESET exactly.");
+                return;
+            }
+
+            if (!confirm("⚠️ FINAL WARNING:\nThis will delete EVERYTHING.\nAre you 100% sure?")) return;
+
+            const formData = new URLSearchParams();
+            formData.append("password", password);
+
+            fetch('/SuperAdminDashboard/FactoryReset', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+                .then(r => r.json())
+                .then(res => {
+                    alert(res.message);
+                    if (res.success) {
+                        window.location.href = "/Account/Login";
+                    }
+                })
+                .catch(() => alert("❌ Error performing factory reset."));
+        }
+
+                function confirmBackup() {
+            const password = getPassword();
+            if (!password) {
+                alert("❌ Please enter SuperAdmin password first.");
+                return;
+            }
+
+            if (!confirm("📦 Create Backup Snapshot?\nThis will store system statistics in ActivityLog.")) return;
+
+            const formData = new URLSearchParams();
+            formData.append("password", password);
+
+            fetch('/SuperAdminDashboard/BackupSnapshot', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+                .then(r => r.json())
+                .then(res => alert(res.message))
+                .catch(() => alert("❌ Error creating backup snapshot."));
+        }
+
+
+
+
+
+    </script>
+}
