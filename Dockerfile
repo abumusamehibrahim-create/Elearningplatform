@@ -5,9 +5,6 @@ WORKDIR /src
 # Copy everything
 COPY . .
 
-# Move into the correct project folder
-WORKDIR /src/Elearningplatform/Elearningplatform
-
 # Restore + Publish
 RUN dotnet restore "ELearningPlatform.csproj"
 RUN dotnet publish "ELearningPlatform.csproj" -c Release -o /app/publish
