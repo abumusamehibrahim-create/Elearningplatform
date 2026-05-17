@@ -1,9 +1,16 @@
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+
+# Copy everything
 COPY . .
-RUN dotnet restore
-RUN dotnet publish -c Release -o /app/publish
+
+# Move into the correct project folder
+WORKDIR /src/Elearningplatform/Elearningplatform
+
+# Restore + Publish
+RUN dotnet restore "ELearningPlatform.csproj"
+RUN dotnet publish "ELearningPlatform.csproj" -c Release -o /app/publish
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
