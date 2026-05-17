@@ -8,12 +8,27 @@ using static System.Formats.Asn1.AsnWriter;
 var builder = WebApplication.CreateBuilder(args);
 
 // ===================== DATABASE =====================
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
+/*builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         sql => sql.CommandTimeout(180) // Prevent timeout
     )
 );
+*/
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null
+        )
+    )
+);
+
+
+
+
 
 // ===================== IDENTITY =====================
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>

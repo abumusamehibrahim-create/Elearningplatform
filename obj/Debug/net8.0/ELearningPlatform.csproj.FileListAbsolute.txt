@@ -258,3 +258,10 @@ D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\refint\ELearn
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\ELearningPlatform.pdb
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\ELearningPlatform.genruntimeconfig.cache
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\ref\ELearningPlatform.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\out\web.config
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\out\appsettings.Development.json
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\out\appsettings.json
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\out\ELearningPlatform.deps.json
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\out\ELearningPlatform.runtimeconfig.json
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\out\ELearningPlatform.staticwebassets.endpoints.json
+D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\ELearningPlatform.sourcelink.json
