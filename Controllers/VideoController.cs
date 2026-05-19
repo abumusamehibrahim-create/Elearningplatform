@@ -94,10 +94,10 @@ namespace ELearningPlatform.Controllers
             return File(stream, "video/mp4", enableRangeProcessing: true);
         }
 
-
-        [Authorize]
-        [HttpGet]
-        [Route("Video/Stream")]
+        
+        //[Authorize]
+      //  [HttpGet]
+       // [Route("Video/Stream")]
         public async Task<IActionResult> StreamLocal(int videoId)
         {
             try
@@ -187,7 +187,7 @@ namespace ELearningPlatform.Controllers
                 Console.WriteLine($"================================\n");
                 return StatusCode(500, $"Error: {ex.Message}");
             }
-        }
+        } 
 
        
         //            <!--<source src="@streamUrl" type="@GetMimeType(Model.FileName)">-->
