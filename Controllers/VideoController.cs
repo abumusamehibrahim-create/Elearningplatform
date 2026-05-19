@@ -81,7 +81,20 @@ namespace ELearningPlatform.Controllers
         }
 
         //=========================================================================================
-     
+        [Authorize]
+        public async Task<IActionResult> Stream(int videoId)
+        {
+            var video = await _context.Videos.FindAsync(videoId);
+            if (video == null)
+                return NotFound();
+
+            using var client = new HttpClient();
+            var stream = await client.GetStreamAsync(video.FileName);
+
+            return File(stream, "video/mp4", enableRangeProcessing: true);
+        }
+
+
         [Authorize]
         [HttpGet]
         [Route("Video/Stream")]
