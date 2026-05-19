@@ -81,7 +81,7 @@ namespace ELearningPlatform.Controllers
         }
 
         //=========================================================================================
-        [Authorize]
+        /*
         public async Task<IActionResult> Stream(int videoId)
         {
             var video = await _context.Videos.FindAsync(videoId);
@@ -93,11 +93,11 @@ namespace ELearningPlatform.Controllers
 
             return File(stream, "video/mp4", enableRangeProcessing: true);
         }
-
+        */
         
-        //[Authorize]
-      //  [HttpGet]
-       // [Route("Video/Stream")]
+        [Authorize]
+        [HttpGet]
+       [Route("Video/Stream")]
         public async Task<IActionResult> StreamLocal(int videoId)
         {
             try
