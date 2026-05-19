@@ -8,6 +8,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using Azure.Storage.Blobs;
+
 
 namespace ELearningPlatform.Controllers
 {
@@ -23,15 +25,17 @@ namespace ELearningPlatform.Controllers
         //private readonly ApplicationDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _env;
+        private readonly IConfiguration _config;
 
         IFormFile[] worksheetFiles;
         public AdminController(ApplicationDbContext db,
             UserManager<ApplicationUser> userManager,
-            IWebHostEnvironment env):base(db)
+            IWebHostEnvironment env, IConfiguration config) :base(db)
         {
            // _context = db;
             _userManager = userManager;
             _env = env;
+            _config = config;
         }
         // student with payemnt=======================================
         public async Task<IActionResult> Students(string name, string email, string status, string course, string transfer)
@@ -549,10 +553,44 @@ namespace ELearningPlatform.Controllers
                 // الخيار 1: استخدم Title مباشرة (بحذف المسافات)
                 string fileName = SanitizeFileName(title) + ext;
 
-                // أو الخيار 2: استخدم معرف فريد (أكثر أماناً)
-                // string fileName = Guid.NewGuid().ToString("N") + ext;
 
-                var uploadPath = Path.Combine(_env.ContentRootPath, "ProtectedVideos");
+                    // -------------------------------
+                    // ⭐⭐ التعديل هنا فقط — رفع الفيديو إلى Azure Blob Storage
+                    // -------------------------------
+                   // var test = _config["AZURE_STORAGE_CONNECTION_STRING"];
+                   // Console.WriteLine("TEST VALUE: " + test);
+                    //Console.WriteLine("CONFIG VALUE: " + _config["AZURE_STORAGE_CONNECTION_STRING"]);
+
+                    var blobServiceClient = new BlobServiceClient(_config["AZURE_STORAGE_CONNECTION_STRING"]);
+                    var containerClient = blobServiceClient.GetBlobContainerClient("videos");
+
+                    var blobClient = containerClient.GetBlobClient(fileName);
+
+                    using (var stream = videoFile.OpenReadStream())
+                    {
+                        await blobClient.UploadAsync(stream, overwrite: true);
+                    }
+
+                    // رابط الفيديو من Azure
+                    var videoUrl = blobClient.Uri.ToString();
+
+                    // -------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+                    // أو الخيار 2: استخدم معرف فريد (أكثر أماناً)
+                    // string fileName = Guid.NewGuid().ToString("N") + ext;
+
+                    var uploadPath = Path.Combine(_env.ContentRootPath, "ProtectedVideos");
                 Directory.CreateDirectory(uploadPath);
 
                 var filePath = Path.Combine(uploadPath, fileName);
@@ -586,7 +624,9 @@ namespace ELearningPlatform.Controllers
                     Description = description,
                     IsFree = isFree,
                     OrderNumber = orderNumber,
-                    FileName = fileName  // ← الاسم الجديد
+
+                    FileName = videoUrl   // ← حفظ رابط Azure بدل اسم الملف
+                    //FileName = fileName  // ← الاسم الجديد
                 };
 
                 _context.Videos.Add(video);
@@ -600,8 +640,8 @@ namespace ELearningPlatform.Controllers
                 ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx"
             };
 
-                    var folder = Path.Combine(_env.ContentRootPath, "ProtectedWorksheetFile");
-                    Directory.CreateDirectory(folder);
+                  //  var folder = Path.Combine(_env.ContentRootPath, "ProtectedWorksheetFile");
+                  //  Directory.CreateDirectory(folder);
                     int index = 0;
                     foreach (var file in worksheetFiles)
                     {
@@ -610,12 +650,12 @@ namespace ELearningPlatform.Controllers
                         if (!allowed.Contains(ext2)) continue;
 
                         var wsName = Guid.NewGuid().ToString("N") + ext2;
-                        var wsPath = Path.Combine(folder, wsName);
+                     //   var wsPath = Path.Combine(folder, wsName);
 
-                        using (var stream = new FileStream(wsPath, FileMode.Create))
-                        {
-                            await file.CopyToAsync(stream);
-                        }
+                      //  using (var stream = new FileStream(wsPath, FileMode.Create))
+                       // {
+                          //  await file.CopyToAsync(stream);
+                      //  }
 
                         _context.WorksheetFiles.Add(new WorksheetFile
                         {

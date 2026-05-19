@@ -251,7 +251,6 @@ D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\staticwebasse
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\staticwebassets.build.json.cache
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\staticwebassets.development.json
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\staticwebassets.build.endpoints.json
-D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\ELearnin.A0568A9F.Up2Date
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\ELearningPlatform.dll
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\refint\ELearningPlatform.dll
@@ -265,3 +264,18 @@ D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\out\ELearning
 D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\out\ELearningPlatform.runtimeconfig.json
 D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\out\ELearningPlatform.staticwebassets.endpoints.json
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\ELearningPlatform.sourcelink.json
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\Azure.Storage.Blobs.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\Azure.Storage.Common.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\Microsoft.Extensions.Configuration.Abstractions.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\Microsoft.Extensions.FileProviders.Abstractions.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\Microsoft.Extensions.Hosting.Abstractions.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\Microsoft.Extensions.Primitives.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\System.ClientModel.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\System.Diagnostics.DiagnosticSource.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\System.IO.Hashing.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\System.IO.Pipelines.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\System.Text.Encodings.Web.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\System.Text.Json.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
+D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
