@@ -346,27 +346,41 @@ namespace ELearningPlatform.Controllers
             if (course == null)
                 return NotFound();
 
-            // 1) حذف ملفات الـ WorksheetFile من السيرفر
-            foreach (var video in course.Videos)
-            {
-                foreach (var file in video.WorksheetFiles)
+                // 1) Azure Clients
+                var blobService = new BlobServiceClient(_config["AZURE_STORAGE_CONNECTION_STRING"]);
+                var videoContainer = blobService.GetBlobContainerClient("videos");
+                var worksheetContainer = blobService.GetBlobContainerClient("worksheets");
+
+                // 2) Delete all worksheet files from Azure
+                foreach (var video in course.Videos)
                 {
-                    var path = Path.Combine("ProtectedWorksheetFile", file.FileName);
-                    if (System.IO.File.Exists(path))
-                        System.IO.File.Delete(path);
+                    foreach (var ws in video.WorksheetFiles)
+                    {
+                        try
+                        {
+                            string wsFileName = Path.GetFileName(new Uri(ws.FilePath).LocalPath);
+                            var wsBlob = worksheetContainer.GetBlobClient(wsFileName);
+                            await wsBlob.DeleteIfExistsAsync();
+                        }
+                        catch { }
+                    }
                 }
-            }
 
-            // 2) حذف ملفات الفيديو من السيرفر
-            foreach (var video in course.Videos)
-            {
-                var videoPath = Path.Combine("ProtectedVideos", video.FileName);
-                if (System.IO.File.Exists(videoPath))
-                    System.IO.File.Delete(videoPath);
-            }
+                // 2) حذف ملفات الفيديو من السيرفر
+                // 3) Delete all videos from Azure
+                foreach (var video in course.Videos)
+                {
+                    try
+                    {
+                        string videoFileName = Path.GetFileName(new Uri(video.FileName).LocalPath);
+                        var videoBlob = videoContainer.GetBlobClient(videoFileName);
+                        await videoBlob.DeleteIfExistsAsync();
+                    }
+                    catch { }
+                }
 
-            // 3) حذف WorksheetItems
-            _context.WorksheetItems.RemoveRange(
+                // 3) حذف WorksheetItems
+                _context.WorksheetItems.RemoveRange(
                 course.Videos.SelectMany(v => v.WorksheetItems)
             );
 
@@ -470,24 +484,39 @@ namespace ELearningPlatform.Controllers
 
             if (course == null)
                 return NotFound();
+                // 1) Azure Clients
+                var blobService = new BlobServiceClient(_config["AZURE_STORAGE_CONNECTION_STRING"]);
+                var videoContainer = blobService.GetBlobContainerClient("videos");
+                var worksheetContainer = blobService.GetBlobContainerClient("worksheets");
 
-            // حذف الملفات من السيرفر
-            foreach (var video in course.Videos)
-            {
-                foreach (var file in video.WorksheetFiles)
+                // 2) Delete all worksheet files from Azure
+                foreach (var video in course.Videos)
                 {
-                    var path = Path.Combine("ProtectedWorksheetFile", file.FileName);
-                    if (System.IO.File.Exists(path))
-                        System.IO.File.Delete(path);
+                    foreach (var ws in video.WorksheetFiles)
+                    {
+                        try
+                        {
+                            string wsFileName = Path.GetFileName(new Uri(ws.FilePath).LocalPath);
+                            var wsBlob = worksheetContainer.GetBlobClient(wsFileName);
+                            await wsBlob.DeleteIfExistsAsync();
+                        }
+                        catch { }
+                    }
+                }
+                // 3) Delete all videos from Azure
+                foreach (var video in course.Videos)
+                {
+                    try
+                    {
+                        string videoFileName = Path.GetFileName(new Uri(video.FileName).LocalPath);
+                        var videoBlob = videoContainer.GetBlobClient(videoFileName);
+                        await videoBlob.DeleteIfExistsAsync();
+                    }
+                    catch { }
                 }
 
-                var videoPath = Path.Combine("ProtectedVideos", video.FileName);
-                if (System.IO.File.Exists(videoPath))
-                    System.IO.File.Delete(videoPath);
-            }
-
-            // حذف البيانات من قاعدة البيانات
-            _context.WorksheetItems.RemoveRange(course.Videos.SelectMany(v => v.WorksheetItems));
+                // حذف البيانات من قاعدة البيانات
+                _context.WorksheetItems.RemoveRange(course.Videos.SelectMany(v => v.WorksheetItems));
             _context.WorksheetFiles.RemoveRange(course.Videos.SelectMany(v => v.WorksheetFiles));
             _context.Videos.RemoveRange(course.Videos);
 
@@ -525,7 +554,13 @@ namespace ELearningPlatform.Controllers
     IFormFile? videoFile, IFormFile[] worksheetFiles, bool[] allowDownload, List<WorksheetItem> worksheetItems)
         {
             try {  // رفع فيديو جديد
-            if (id == null)
+
+
+                // إنشاء Azure Client مرة واحدة فقط
+                var blobService = new BlobServiceClient(_config["AZURE_STORAGE_CONNECTION_STRING"]);
+                var videoContainer = blobService.GetBlobContainerClient("videos");
+                var worksheetContainer = blobService.GetBlobContainerClient("worksheets");
+                if (id == null)
             {
                 if (videoFile == null)
                 {
@@ -572,49 +607,38 @@ namespace ELearningPlatform.Controllers
                     }
 
                     // رابط الفيديو من Azure
-                    var videoUrl = blobClient.Uri.ToString();
+                    string videoUrl = blobClient.Uri.ToString();
 
                     // -------------------------------
-
-
-
-
-
-
-
-
-
-
-
 
                     // أو الخيار 2: استخدم معرف فريد (أكثر أماناً)
                     // string fileName = Guid.NewGuid().ToString("N") + ext;
 
-                    var uploadPath = Path.Combine(_env.ContentRootPath, "ProtectedVideos");
-                Directory.CreateDirectory(uploadPath);
+                   // var uploadPath = Path.Combine(_env.ContentRootPath, "ProtectedVideos");
+                //Directory.CreateDirectory(uploadPath);
 
-                var filePath = Path.Combine(uploadPath, fileName);
+                //var filePath = Path.Combine(uploadPath, fileName);
 
                 // تأكد من عدم وجود ملف بنفس الاسم
-                if (System.IO.File.Exists(filePath))
-                {
+               // if (System.IO.File.Exists(filePath))
+               // {
                     // إذا كان موجود، أضف رقم
-                    int counter = 1;
-                    while (System.IO.File.Exists(filePath))
-                    {
-                        fileName = SanitizeFileName(title) + $"_{counter}" + ext;
-                        filePath = Path.Combine(uploadPath, fileName);
-                        counter++;
-                    }
-                }
+                //    int counter = 1;
+                //    while (System.IO.File.Exists(filePath))
+                 //   {
+                 //       fileName = SanitizeFileName(title) + $"_{counter}" + ext;
+                 //       filePath = Path.Combine(uploadPath, fileName);
+                //        counter++;
+               //     }
+              //  }
 
                 // رفع آمن
-                if (!SafeWriteFile(filePath, videoFile))
-                {
-                    ViewBag.Error = "حدث خطأ أثناء رفع الفيديو";
-                    ViewBag.CourseId = courseId;
-                    return View();
-                }
+              //  if (!SafeWriteFile(filePath, videoFile))
+               // {
+               //     ViewBag.Error = "حدث خطأ أثناء رفع الفيديو";
+               //     ViewBag.CourseId = courseId;
+              //      return View();
+              //  }
 
                 // ✅ حفظ الفيديو بالاسم الجديد
                 var video = new Video
@@ -632,6 +656,7 @@ namespace ELearningPlatform.Controllers
                 _context.Videos.Add(video);
                 await _context.SaveChangesAsync();
 
+
                 // حفظ أوراق العمل
                 if (worksheetFiles != null && worksheetFiles.Length > 0)
                 {
@@ -643,21 +668,47 @@ namespace ELearningPlatform.Controllers
                   //  var folder = Path.Combine(_env.ContentRootPath, "ProtectedWorksheetFile");
                   //  Directory.CreateDirectory(folder);
                     int index = 0;
+
+
+
+
+
+
+
                     foreach (var file in worksheetFiles)
                     {
                         if (file == null) continue;
                         var ext2 = Path.GetExtension(file.FileName).ToLower();
                         if (!allowed.Contains(ext2)) continue;
 
-                        var wsName = Guid.NewGuid().ToString("N") + ext2;
-                     //   var wsPath = Path.Combine(folder, wsName);
+                        string wsName = Guid.NewGuid().ToString("N") + ext2;
 
-                      //  using (var stream = new FileStream(wsPath, FileMode.Create))
-                       // {
-                          //  await file.CopyToAsync(stream);
-                      //  }
 
-                        _context.WorksheetFiles.Add(new WorksheetFile
+                            var wsBlob = worksheetContainer.GetBlobClient(wsName);
+
+                            using (var stream = file.OpenReadStream())
+                            {
+                                await wsBlob.UploadAsync(stream, overwrite: true);
+                            }
+
+                            string wsUrl = wsBlob.Uri.ToString();                                                 
+
+                           
+
+                            // حفظ في قاعدة البيانات
+                            _context.WorksheetFiles.Add(new WorksheetFile
+                            {
+                                VideoId = video.Id,
+                                FileName = wsName,
+                                FilePath = wsUrl,  // ← رابط Azure
+                                AllowDownload = allowDownload != null && allowDownload.Length > index
+                                    ? allowDownload[index]
+                                    : false
+                            });
+
+
+
+                          /*  _context.WorksheetFiles.Add(new WorksheetFile
                         {
                             VideoId = video.Id,
                             FileName = wsName,
@@ -665,7 +716,9 @@ namespace ELearningPlatform.Controllers
                             AllowDownload = allowDownload != null && allowDownload.Length > index
                                 ? allowDownload[index]
                                 : false
-                        });
+                        });*/
+
+
                         index++;
                     }
 
@@ -690,7 +743,7 @@ namespace ELearningPlatform.Controllers
                 TempData["Success"] = "تم رفع الفيديو بنجاح";
                 return RedirectToAction("Videos", new { courseId });
             }
-
+            //========================================update viedo================================================================
             // تعديل فيديو موجود
             var existingVideo = _context.Videos.FirstOrDefault(v => v.Id == id);
             if (existingVideo == null)
@@ -701,63 +754,88 @@ namespace ELearningPlatform.Controllers
             existingVideo.IsFree = isFree;
             existingVideo.OrderNumber = orderNumber;
 
-            if (videoFile != null)
-            {
-                var allowedExtensions = new[] { ".mp4", ".webm", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".m4v", ".3gp", ".ts" };
-                var ext = Path.GetExtension(videoFile.FileName).ToLower();
-
-                if (!allowedExtensions.Contains(ext))
+                if (videoFile != null)
                 {
-                    ViewBag.Error = "نوع الملف غير مدعوم";
-                    ViewBag.CourseId = courseId;
-                    return View(existingVideo);
-                }
+                    var allowedExtensions = new[] { ".mp4", ".webm", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".m4v", ".3gp", ".ts" };
+                    var ext = Path.GetExtension(videoFile.FileName).ToLower();
 
-                // ✅ حذف الملف القديم
-                var oldPath = Path.Combine(_env.ContentRootPath, "ProtectedVideos", existingVideo.FileName);
-                if (System.IO.File.Exists(oldPath))
-                {
-                    System.IO.File.Delete(oldPath);
-                }
-
-                // ✅ إنشاء اسم جديد
-                string fileName = SanitizeFileName(title) + ext;
-                var uploadPath = Path.Combine(_env.ContentRootPath, "ProtectedVideos");
-                Directory.CreateDirectory(uploadPath);
-
-                var filePath = Path.Combine(uploadPath, fileName);
-
-                // تأكد من عدم وجود ملف بنفس الاسم
-                if (System.IO.File.Exists(filePath))
-                {
-                    int counter = 1;
-                    while (System.IO.File.Exists(filePath))
+                    if (!allowedExtensions.Contains(ext))
                     {
-                        fileName = SanitizeFileName(title) + $"_{counter}" + ext;
-                        filePath = Path.Combine(uploadPath, fileName);
-                        counter++;
+                        ViewBag.Error = "نوع الملف غير مدعوم";
+                        ViewBag.CourseId = courseId;
+                        return View(existingVideo);
                     }
+
+                    // ✅ حذف الملف القديم
+                    // var oldPath = Path.Combine(_env.ContentRootPath, "ProtectedVideos", existingVideo.FileName);
+                    //if (System.IO.File.Exists(oldPath))
+                    //{
+                    //     System.IO.File.Delete(oldPath);
+                    //  }
+                    try
+                    {
+                        var oldBlob = new BlobClient(new Uri(existingVideo.FileName));
+
+                        await oldBlob.DeleteIfExistsAsync();
+                    }
+                    catch { }
+
+                    // ✅ إنشاء اسم جديد
+                    string fileName = SanitizeFileName(title) + ext;
+                    var newBlob = videoContainer.GetBlobClient(fileName);
+
+                    using (var stream = videoFile.OpenReadStream())
+                    {
+                        await newBlob.UploadAsync(stream, overwrite: true);
+                    }
+                    existingVideo.FileName = newBlob.Uri.ToString();
                 }
+                await _context.SaveChangesAsync();
 
-                using (var stream = new FileStream(filePath, FileMode.Create))
-                {
-                    await videoFile.CopyToAsync(stream);
-                }
-
-                existingVideo.FileName = fileName;
-            }
-
-            await _context.SaveChangesAsync();
-
-            TempData["Success"] = "تم تحديث الفيديو بنجاح";
-            return RedirectToAction("Videos", new { courseId });
+                TempData["Success"] = "تم تحديث الفيديو بنجاح";
+                return RedirectToAction("Videos", new { courseId });
             }
             catch (Exception e)
             {
                 return Content("Error: " + e.Message);
             }
+        }
+                    //var uploadPath = Path.Combine(_env.ContentRootPath, "ProtectedVideos");
+                    //  Directory.CreateDirectory(uploadPath);
 
-        }//==============================================================
+                    // var filePath = Path.Combine(uploadPath, fileName);
+
+                    // تأكد من عدم وجود ملف بنفس الاسم
+                    //  if (System.IO.File.Exists(filePath))
+                    // {
+                    //   int counter = 1;
+                    //   while (System.IO.File.Exists(filePath))
+                    //   {
+                    //      fileName = SanitizeFileName(title) + $"_{counter}" + ext;
+                    //      filePath = Path.Combine(uploadPath, fileName);
+                    //       counter++;
+                    //   }
+                    //}
+
+                    // using (var stream = new FileStream(filePath, FileMode.Create))
+                    //  {
+                    //      await videoFile.CopyToAsync(stream);
+               // }
+
+              //  existingVideo.FileName = fileName;
+           // }
+
+           // await _context.SaveChangesAsync();
+
+          //  TempData["Success"] = "تم تحديث الفيديو بنجاح";
+          //  return RedirectToAction("Videos", new { courseId });
+          //  }
+          //  catch (Exception e)
+           // {
+            //    return Content("Error: " + e.Message);
+          //  }
+
+       // }//==============================================================
 
         // ✅ دالة لتنظيف اسم الملف (إزالة الأحرف الخاصة)
         private string SanitizeFileName(string fileName)
@@ -1092,9 +1170,162 @@ namespace ELearningPlatform.Controllers
 
 
         }
-
+        //===============================updateviedo Azure
         [HttpPost]
         public async Task<IActionResult> UpdateVideo(
+    int id,
+    string title,
+    string? description,
+    bool isFree,
+    int orderNumber,
+    IFormFile? videoFile,
+    IFormFile[] worksheetFiles,
+    bool[] allowDownload,
+    List<WorksheetItem> worksheetItems)
+        {
+            try
+            {
+                var video = await _context.Videos
+                    .Include(v => v.WorksheetFiles)
+                    .Include(v => v.WorksheetItems)
+                    .FirstOrDefaultAsync(v => v.Id == id);
+
+                if (video == null)
+                    return NotFound();
+
+                // تحديث البيانات الأساسية
+                video.Title = title;
+                video.Description = description;
+                video.IsFree = isFree;
+                video.OrderNumber = orderNumber;
+
+                // Azure Clients
+                var blobService = new BlobServiceClient(_config["AZURE_STORAGE_CONNECTION_STRING"]);
+                var videoContainer = blobService.GetBlobContainerClient("videos");
+                var worksheetContainer = blobService.GetBlobContainerClient("worksheets");
+
+                // ============================
+                // ⭐ تحديث ملف الفيديو (اختياري)
+                // ============================
+                if (videoFile != null)
+                {
+                    var allowedVideoExt = new[] { ".mp4", ".webm", ".mkv", ".avi", ".mov", ".wmv", ".flv", ".m4v", ".3gp", ".ts" };
+                    var ext = Path.GetExtension(videoFile.FileName).ToLower();
+
+                    if (!allowedVideoExt.Contains(ext))
+                    {
+                        ViewBag.Error = "نوع الملف غير مدعوم";
+                        return View(video);
+                    }
+
+                    // حذف الفيديو القديم من Azure
+                    try
+                    {
+                        string oldFileName = Path.GetFileName(new Uri(video.FileName).LocalPath);
+                        var oldBlob = videoContainer.GetBlobClient(oldFileName);
+                        await oldBlob.DeleteIfExistsAsync();
+                    }
+                    catch { }
+
+                    // رفع الفيديو الجديد
+                    string newFileName = SanitizeFileName(title) + ext;
+                    var newBlob = videoContainer.GetBlobClient(newFileName);
+
+                    using (var stream = videoFile.OpenReadStream())
+                    {
+                        await newBlob.UploadAsync(stream, overwrite: true);
+                    }
+
+                    video.FileName = newBlob.Uri.ToString();
+                }
+                // ============================
+                // ⭐ حذف أوراق العمل القديمة من Azure + DB
+                // ============================
+                foreach (var oldWs in video.WorksheetFiles)
+                {
+                    try
+                    {
+                        string oldWsName = Path.GetFileName(new Uri(oldWs.FilePath).LocalPath);
+                        var oldWsBlob = worksheetContainer.GetBlobClient(oldWsName);
+                        await oldWsBlob.DeleteIfExistsAsync();
+                    }
+                    catch { }
+                }
+
+                _context.WorksheetFiles.RemoveRange(video.WorksheetFiles);
+                // ============================
+                // ⭐ إضافة أوراق عمل جديدة فقط
+                // ============================
+                if (worksheetFiles != null && worksheetFiles.Length > 0)
+                {
+                    var allowed = new[] { ".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".ppt", ".pptx", ".xls", ".xlsx" };
+                    int index = 0;
+
+                    foreach (var file in worksheetFiles)
+                    {
+                        if (file == null) continue;
+
+                        var ext = Path.GetExtension(file.FileName).ToLower();
+                        if (!allowed.Contains(ext)) continue;
+
+                        string wsName = Guid.NewGuid().ToString("N") + ext;
+
+                        var wsBlob = worksheetContainer.GetBlobClient(wsName);
+
+                        using (var stream = file.OpenReadStream())
+                        {
+                            await wsBlob.UploadAsync(stream, overwrite: true);
+                        }
+
+                        string wsUrl = wsBlob.Uri.ToString();
+
+                        _context.WorksheetFiles.Add(new WorksheetFile
+                        {
+                            VideoId = video.Id,
+                            FileName = wsName,
+                            FilePath = wsUrl,
+                            AllowDownload = allowDownload != null && allowDownload.Length > index
+                                ? allowDownload[index]
+                                : false
+                        });
+
+                        index++;
+                    }
+                }
+
+                // ============================
+                // ⭐ تحديث الأسئلة (حذف القديم + إضافة الجديد)
+                // ============================
+                var oldItems = _context.WorksheetItems.Where(x => x.VideoId == video.Id);
+                _context.WorksheetItems.RemoveRange(oldItems);
+
+                if (worksheetItems != null)
+                {
+                    foreach (var item in worksheetItems)
+                    {
+                        if (string.IsNullOrWhiteSpace(item.Question))
+                            continue;
+
+                        item.VideoId = video.Id;
+                        _context.WorksheetItems.Add(item);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                TempData["Success"] = "تم تحديث الفيديو بنجاح";
+                return RedirectToAction("Videos", new { courseId = video.CourseId });
+            }
+            catch (Exception e)
+            {
+                return Content("Error: " + e.Message);
+            }
+        }
+
+
+        //=========================================updatevideoLocal
+        [HttpPost]
+        public async Task<IActionResult> UpdateVideoLocal(
     int id,
     string title,
     string? description,
@@ -1205,51 +1436,66 @@ namespace ELearningPlatform.Controllers
 
         }
 
-        //========================DeleteViedio======================================================================
+        //========================DeleteVideo (Azure Version) ==============================
         [HttpPost]
         public async Task<IActionResult> DeleteVideo(int videoId)
         {
-            try { 
-            // CHANGE: جلب الفيديو مع الملفات والأسئلة
-            var video = await _context.Videos
-                .Include(v => v.WorksheetFiles)
-                .Include(v => v.WorksheetItems)
-                .FirstOrDefaultAsync(v => v.Id == videoId);
-
-            if (video != null)
+            try
             {
-                // CHANGE: حذف ملف الفيديو من السيرفر
-                var filePath = Path.Combine(_env.ContentRootPath, "ProtectedVideos", video.FileName);
-                if (System.IO.File.Exists(filePath))
-                    System.IO.File.Delete(filePath);
+                // 1) جلب الفيديو مع الملفات والأسئلة
+                var video = await _context.Videos
+                    .Include(v => v.WorksheetFiles)
+                    .Include(v => v.WorksheetItems)
+                    .FirstOrDefaultAsync(v => v.Id == videoId);
 
-                // CHANGE: حذف ملفات أوراق العمل من السيرفر
+                if (video == null)
+                    return NotFound();
+
+                // 2) إنشاء Azure Client
+                var blobService = new BlobServiceClient(_config["AZURE_STORAGE_CONNECTION_STRING"]);
+                var videoContainer = blobService.GetBlobContainerClient("videos");
+                var worksheetContainer = blobService.GetBlobContainerClient("worksheets");
+
+                // 3) حذف الفيديو من Azure
+                try
+                {
+                    string videoFileName = Path.GetFileName(new Uri(video.FileName).LocalPath);
+                    var videoBlob = videoContainer.GetBlobClient(videoFileName);
+                    await videoBlob.DeleteIfExistsAsync();
+                }
+                catch { }
+
+                // 4) حذف ملفات أوراق العمل من Azure
                 foreach (var ws in video.WorksheetFiles)
                 {
-                    var wsPath = Path.Combine(_env.ContentRootPath, "ProtectedWorksheetFile", ws.FileName);
-                    if (System.IO.File.Exists(wsPath))
-                        System.IO.File.Delete(wsPath);
+                    try
+                    {
+                        string wsFileName = Path.GetFileName(new Uri(ws.FilePath).LocalPath);
+                        var wsBlob = worksheetContainer.GetBlobClient(wsFileName);
+                        await wsBlob.DeleteIfExistsAsync();
+                    }
+                    catch { }
                 }
 
-                // CHANGE: حذف أوراق العمل من قاعدة البيانات
+                // 5) حذف أوراق العمل من قاعدة البيانات
                 _context.WorksheetFiles.RemoveRange(video.WorksheetFiles);
 
-                // CHANGE: حذف الأسئلة من قاعدة البيانات
+                // 6) حذف الأسئلة من قاعدة البيانات
                 _context.WorksheetItems.RemoveRange(video.WorksheetItems);
 
-                // حذف الفيديو نفسه
+                // 7) حذف الفيديو نفسه من قاعدة البيانات
                 _context.Videos.Remove(video);
 
                 await _context.SaveChangesAsync();
-            }
 
-            return RedirectToAction("Videos", new { courseId = video?.CourseId });
+                return RedirectToAction("Videos", new { courseId = video.CourseId });
             }
             catch (Exception e)
             {
                 return Content("Error: " + e.Message);
             }
         }
+
 
         //=========================================================================================================
         [HttpPost]
