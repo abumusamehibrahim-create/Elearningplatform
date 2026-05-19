@@ -1,3 +1,5 @@
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using ELearningPlatform.Data;
 using ELearningPlatform.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
-using Azure.Storage.Blobs;
 
 
 namespace ELearningPlatform.Controllers
@@ -603,7 +604,11 @@ namespace ELearningPlatform.Controllers
 
                     using (var stream = videoFile.OpenReadStream())
                     {
-                        await blobClient.UploadAsync(stream, overwrite: true);
+                        // await blobClient.UploadAsync(stream, overwrite: true);
+                        await blobClient.UploadAsync(stream, new BlobHttpHeaders
+                        {
+                            ContentType = "video/mp4"
+                        });
                     }
 
                     // رابط الفيديو من Azure
@@ -670,11 +675,6 @@ namespace ELearningPlatform.Controllers
                     int index = 0;
 
 
-
-
-
-
-
                     foreach (var file in worksheetFiles)
                     {
                         if (file == null) continue;
@@ -690,6 +690,7 @@ namespace ELearningPlatform.Controllers
                             {
                                 await wsBlob.UploadAsync(stream, overwrite: true);
                             }
+
 
                             string wsUrl = wsBlob.Uri.ToString();                                                 
 
@@ -786,7 +787,11 @@ namespace ELearningPlatform.Controllers
 
                     using (var stream = videoFile.OpenReadStream())
                     {
-                        await newBlob.UploadAsync(stream, overwrite: true);
+                        //  await newBlob.UploadAsync(stream, overwrite: true);
+                        await newBlob.UploadAsync(stream, new BlobHttpHeaders
+                        {
+                            ContentType = "video/mp4"
+                        });
                     }
                     existingVideo.FileName = newBlob.Uri.ToString();
                 }
@@ -1233,7 +1238,12 @@ namespace ELearningPlatform.Controllers
 
                     using (var stream = videoFile.OpenReadStream())
                     {
-                        await newBlob.UploadAsync(stream, overwrite: true);
+                        // await newBlob.UploadAsync(stream, overwrite: true);
+                        await newBlob.UploadAsync(stream, new BlobHttpHeaders
+                        {
+                            ContentType = "video/mp4"
+                        });
+
                     }
 
                     video.FileName = newBlob.Uri.ToString();

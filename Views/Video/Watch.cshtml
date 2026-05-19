@@ -26,8 +26,10 @@
         <video id="videoPlayer" controls class="w-100" style="max-height:70vh; display:block;"
                controlsList="nodownload" oncontextmenu="return false;">
             <!--<source src="@Model.StreamUrl" type="application/x-mpegURL" />-->
-         <!--   <source src="@Url.Action("Stream","Video",new{videoId=Model.Id})" type="video/mp4" />-->
-            <source src="@Model.StreamUrl" type="video/mp4" />
+         <!--   <source src="@Url.Action("Stream","Video",new{videoId=Model.Id})" type="video/mp4" />
+               <source src="@Model.StreamUrl" type="video/mp4" />-->
+            <source src="@Model.FileName" type="video/mp4" />
+
             متصفحك لا يدعم تشغيل الفيديو.
         </video>
     </div>
