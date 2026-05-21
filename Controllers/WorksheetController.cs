@@ -107,6 +107,34 @@ public class WorksheetController : BaseController
     //=============================================================================
     public async Task<IActionResult> ViewPdf(int id)
     {
+        var file = _context.WorksheetFiles.FirstOrDefault(f => f.Id == id);
+        if (file == null)
+            return NotFound();
+
+        // استخراج اسم الملف فقط
+        string fileName;
+        if (Uri.IsWellFormedUriString(file.FileName, UriKind.Absolute))
+            fileName = Path.GetFileName(new Uri(file.FileName).LocalPath);
+        else
+            fileName = Path.GetFileName(file.FileName);
+
+        // تحميل الملف من Azure
+        var stream = await _videoManager.StreamWorksheetAsync(fileName);
+
+        using var ms = new MemoryStream();
+        await stream.CopyToAsync(ms);
+        var bytes = ms.ToArray();
+
+        // إرسال PDF مباشرة للـ iframe
+        Response.Headers["Content-Disposition"] = "inline; filename=worksheet.pdf";
+        return File(bytes, "application/pdf");
+    }
+
+
+
+    //==============================================================
+    public async Task<IActionResult> ViewPdf2(int id)
+    {
         try
         {
             var file = _context.WorksheetFiles.FirstOrDefault(f => f.Id == id);
