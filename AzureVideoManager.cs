@@ -11,16 +11,16 @@
 
         public AzureVideoManager(IConfiguration config)
         {
-            // Create Azure Blob Service
+            // Azure connection string
             _blobService = new BlobServiceClient(config["AZURE_STORAGE_CONNECTION_STRING"]);
 
-            // Create containers
+            // Containers
             _videoContainer = _blobService.GetBlobContainerClient("videos");
             _worksheetContainer = _blobService.GetBlobContainerClient("worksheets");
 
-            // Ensure containers exist
-            _videoContainer.CreateIfNotExists(PublicAccessType.Blob);
-            _worksheetContainer.CreateIfNotExists(PublicAccessType.Blob);
+            // Ensure containers exist (private access)
+            _videoContainer.CreateIfNotExists(PublicAccessType.None);
+            _worksheetContainer.CreateIfNotExists(PublicAccessType.None);
         }
 
         // ============================================================
@@ -35,7 +35,7 @@
                 await blob.UploadAsync(stream, overwrite: true);
             }
 
-            return blob.Uri.ToString(); // return Azure URL
+            return blob.Uri.ToString(); // store URL in SQL
         }
 
         // ============================================================
@@ -91,7 +91,7 @@
         }
 
         // ============================================================
-        // ⭐ Stream Video (returns Stream)
+        // ⭐ Stream Video (supports Range)
         // ============================================================
         public async Task<Stream> StreamVideoAsync(string videoUrl)
         {
@@ -99,10 +99,28 @@
 
             var blob = _videoContainer.GetBlobClient(fileName);
 
-            var response = await blob.DownloadAsync();
+            // Supports streaming + seeking
+            var response = await blob.DownloadStreamingAsync();
+
+            return response.Value.Content;
+        }
+
+        // ============================================================
+        // ⭐ Stream Worksheet (PDF, DOCX, etc.)
+        // ============================================================
+        public async Task<Stream> StreamWorksheetAsync(string worksheetUrl)
+        {
+            string fileName = Path.GetFileName(new Uri(worksheetUrl).LocalPath);
+
+            var blob = _worksheetContainer.GetBlobClient(fileName);
+
+            var response = await blob.DownloadStreamingAsync();
+
             return response.Value.Content;
         }
     }
+}
+
     /*
      Controller
 Add this field:
@@ -146,4 +164,4 @@ return File(stream, "video/mp4");
 
 
 
-}
+

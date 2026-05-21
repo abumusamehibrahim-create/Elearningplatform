@@ -28,8 +28,8 @@
             <!--<source src="@Model.StreamUrl" type="application/x-mpegURL" />-->
          <!--   <source src="@Url.Action("Stream","Video",new{videoId=Model.Id})" type="video/mp4" />
                <source src="@Model.StreamUrl" type="video/mp4" />-->
-             <source src="@Model.FileName" type="video/mp4" />
-            <!-- <source src="/Video/Stream/@Model.Id" type="video/mp4" />-->
+            <!--  <source src="@Model.FileName" type="video/mp4" />-->
+            <source src="/Video/Stream?videoId=@Model.Id" type="video/mp4" />
 
             متصفحك لا يدعم تشغيل الفيديو.
         </video>
