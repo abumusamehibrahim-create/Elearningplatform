@@ -1,4 +1,5 @@
-﻿using ELearningPlatform.Data;
+﻿using ELearningPlatform;
+using ELearningPlatform.Data;
 using ELearningPlatform.Models;
 using iTextSharp.text;
 using iTextSharp.text.pdf;
@@ -10,11 +11,12 @@ public class WorksheetController : BaseController
 {
     private readonly IWebHostEnvironment _env;
     private readonly UserManager<ApplicationUser> _userManager;
-
-    public WorksheetController(ApplicationDbContext context, UserManager<ApplicationUser> userManager):base(context)
+    private readonly AzureVideoManager _videoManager;
+    public WorksheetController(ApplicationDbContext context, IConfiguration config, UserManager<ApplicationUser> userManager):base(context)
     {
        // _context = context;
         _userManager = userManager;
+        _videoManager = new AzureVideoManager(config); // ⭐ مهم
     }
    // private readonly ApplicationDbContext _context;
 
@@ -74,27 +76,28 @@ public class WorksheetController : BaseController
 
 
     //============================download Action========
-    public IActionResult Download(int id)
+    public async Task<IActionResult> Download(int id)
     {
-        try { 
-        return SafeExecute<IActionResult>(() =>
+        try
         {
             var file = _context.WorksheetFiles.FirstOrDefault(f => f.Id == id);
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "ProtectedWorksheetFile", file.FileName);
-
             if (file == null)
                 return NotFound();
 
             if (!file.AllowDownload && !User.IsInRole("Admin"))
                 return Unauthorized();
 
-            var fileBytes = System.IO.File.ReadAllBytes(path);
+            // ⭐ جلب الملف من Azure
+            var stream = await _videoManager.StreamWorksheetAsync(file.FileName);
 
-            var user = _userManager.GetUserAsync(User).Result;
-            var watermarked = AddWatermark(fileBytes, $"Student: {user.UserName}");
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            var bytes = ms.ToArray();
+
+            var user = await _userManager.GetUserAsync(User);
+            var watermarked = AddWatermark(bytes, $"Student: {user.UserName}");
 
             return File(watermarked, "application/pdf", file.FileName);
-        });
         }
         catch (Exception e)
         {
@@ -102,39 +105,35 @@ public class WorksheetController : BaseController
         }
     }
     //=============================================================================
-    public IActionResult ViewPdf(int id)
+    public async Task<IActionResult> ViewPdf(int id)
     {
-        try { 
-        return SafeExecute<IActionResult>(() =>
+        try
         {
             var file = _context.WorksheetFiles.FirstOrDefault(f => f.Id == id);
             if (file == null)
                 return NotFound();
 
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "ProtectedWorksheetFile", file.FileName);
+            // هنا نرسل نفس القيمة المخزنة في DB
+            var stream = await _videoManager.StreamWorksheetAsync(file.FileName);
 
-            if (!System.IO.File.Exists(path))
-                return NotFound();
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            var bytes = ms.ToArray();
 
-            var bytes = System.IO.File.ReadAllBytes(path);
+            var user = await _userManager.GetUserAsync(User);
 
-            var user = _userManager.GetUserAsync(User).Result;
-
-            var watermarked = AddWatermark(
-                 bytes,
-                 $"islam teacher  "
-             );
+            var watermarked = AddWatermark(bytes, $"islam teacher");
 
             Response.Headers["Content-Disposition"] = "inline";
             return File(watermarked, "application/pdf");
-        });
-
         }
         catch (Exception e)
         {
             return Content("Error: " + e.Message);
         }
     }
+
+
 
     //================================================
 
@@ -170,11 +169,11 @@ public class WorksheetController : BaseController
 
     //==============================uploadWorksheet=============
     [HttpPost]
+    [HttpPost]
     public async Task<IActionResult> UploadWorksheet(int videoId, IFormFile file)
     {
-        try{
-            return await SafeExecuteAsync<IActionResult>(async () => {
-        
+        try
+        {
             if (file == null)
             {
                 TempData["Error"] = "يرجى اختيار ملف";
@@ -183,12 +182,11 @@ public class WorksheetController : BaseController
 
             var allowed = new[]
             {
-        ".pdf",
-        ".jpg", ".jpeg", ".png",
-        ".doc", ".docx",
-        ".ppt", ".pptx",
-        ".xls", ".xlsx"
-    };
+            ".pdf", ".jpg", ".jpeg", ".png",
+            ".doc", ".docx",
+            ".ppt", ".pptx",
+            ".xls", ".xlsx"
+        };
 
             var ext = Path.GetExtension(file.FileName).ToLower();
 
@@ -198,35 +196,28 @@ public class WorksheetController : BaseController
                 return RedirectToAction("WorksheetDetails", new { videoId });
             }
 
-            var folder = Path.Combine(_env.ContentRootPath, "ProtectedWorksheetFile");
-            Directory.CreateDirectory(folder);
-
+            // ⭐ رفع إلى Azure
             var fileName = Guid.NewGuid().ToString("N") + ext;
-            var filePath = Path.Combine(folder, fileName);
-
-            using (var stream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(stream);
-            }
+            var azureUrl = await _videoManager.UploadWorksheetAsync(file, fileName);
 
             _context.WorksheetFiles.Add(new WorksheetFile
             {
                 VideoId = videoId,
-                FileName = fileName
+                FileName = azureUrl, // ⭐ نخزن URL وليس اسم الملف
+                AllowDownload = true
             });
 
             await _context.SaveChangesAsync();
 
             TempData["Success"] = "تم رفع ورقة العمل بنجاح";
             return RedirectToAction("WorksheetDetails", new { videoId });
-        });
-
         }
         catch (Exception e)
         {
             return Content("Error: " + e.Message);
         }
     }
+
     private async Task<T> SafeExecuteAsync<T>(Func<Task<T>> action)
     {
         try

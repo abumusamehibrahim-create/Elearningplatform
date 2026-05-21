@@ -108,16 +108,59 @@
         // ============================================================
         // ⭐ Stream Worksheet (PDF, DOCX, etc.)
         // ============================================================
-        public async Task<Stream> StreamWorksheetAsync(string worksheetUrl)
+        public async Task<Stream> StreamWorksheetAsync(string worksheetPathOrUrl)
         {
-            string fileName = Path.GetFileName(new Uri(worksheetUrl).LocalPath);
+            string fileName;
+
+            // إذا القيمة URL كامل من Azure
+            if (Uri.IsWellFormedUriString(worksheetPathOrUrl, UriKind.Absolute))
+            {
+                fileName = Path.GetFileName(new Uri(worksheetPathOrUrl).LocalPath);
+            }
+            else
+            {
+                // إذا القيمة مجرد اسم ملف مثل abc.pdf
+                fileName = worksheetPathOrUrl;
+            }
 
             var blob = _worksheetContainer.GetBlobClient(fileName);
-
             var response = await blob.DownloadStreamingAsync();
 
             return response.Value.Content;
         }
+
+        //============
+        /*
+         هنا نستخدم Azure SAS Token لمدة قصيرة جدًا (30 ثانية).
+
+يعني:
+
+الرابط يعمل فقط 30 ثانية
+
+يعمل فقط من السيرفر
+
+لا يعمل إذا نسخه الطالب
+
+لا يعمل إذا أرسله لصديقه
+
+سأضيف لك دالة داخل 
+         
+         
+         */
+        public string GenerateWorksheetSasUrl(string fileName, int seconds = 30)
+        {
+            var blob = _worksheetContainer.GetBlobClient(fileName);
+
+            var sas = blob.GenerateSasUri(Azure.Storage.Sas.BlobSasPermissions.Read,
+                DateTimeOffset.UtcNow.AddSeconds(seconds));
+
+            return sas.ToString();
+        }
+
+
+
+
+
     }
 }
 
