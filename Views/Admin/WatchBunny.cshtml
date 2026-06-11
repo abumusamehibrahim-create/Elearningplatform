@@ -1,0 +1,37 @@
+﻿@model ELearningPlatform.Models.Video
+@{
+    ViewData["Title"] = Model.Title;
+
+    // Bunny Stream URL (محمي Token)
+    var streamUrl = Model.FileName; // الرابط المحمي الذي أرسلته من الـ Controller
+}
+
+<div class="alert alert-info m-3">
+    <h5>🎬 معلومات الفيديو (Bunny Stream):</h5>
+    <p><strong>Video ID:</strong> @Model.Id</p>
+    <p><strong>Bunny Video ID:</strong> @Model.BunnyVideoId</p>
+    <p><strong>CDN Hostname:</strong> @Model.BunnyCDNHostname</p>
+    <p><strong>Stream URL (Token):</strong> @streamUrl</p>
+</div>
+
+<div style="background:#000;">
+    <div class="container px-0">
+        <video id="videoPlayer"
+               controls
+               width="100%"
+               style="max-height:70vh; background:#000;">
+            <source src="@streamUrl" type="application/x-mpegURL" />
+        </video>
+    </div>
+</div>
+
+<script>
+    const video = document.getElementById('videoPlayer');
+
+    video.addEventListener('error', () => {
+        console.error('Video error:', video.error);
+    });
+
+    video.addEventListener('loadstart', () => console.log('Loading Bunny Stream...'));
+    video.addEventListener('canplay', () => console.log('Bunny Stream Ready'));
+</script>

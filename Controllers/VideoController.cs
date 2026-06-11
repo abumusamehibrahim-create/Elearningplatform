@@ -21,6 +21,7 @@ namespace ELearningPlatform.Controllers
         private readonly IWebHostEnvironment _env;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly VideoAccessService _accessService;
+        private readonly BunnyVideoManager2 _bunny;
 
         public VideoController(ApplicationDbContext db,
             IWebHostEnvironment env, IConfiguration config,
@@ -32,6 +33,7 @@ namespace ELearningPlatform.Controllers
             _userManager = userManager;
             _accessService = accessService;
             _videoManager = new AzureVideoManager(config);
+            _bunny = new BunnyVideoManager2(config);
 
         }
 
@@ -128,6 +130,27 @@ namespace ELearningPlatform.Controllers
             }
 
         }//==========================================azurestreaming
+
+        public async Task<IActionResult> WatchBunny(int videoId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return RedirectToAction("Login", "Account");
+
+            var video = await _context.Videos
+                .Include(v => v.Course)
+                .FirstOrDefaultAsync(v => v.Id == videoId);
+
+            if (video == null) return NotFound();
+
+            if (video.UseBunny)
+            {
+                video.FileName = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+            }
+
+            return View("WatchBunny", video);
+        }
+
+
         [HttpGet("Video/Stream")]
         public async Task<IActionResult> StreamAzure(int videoId)
         {
@@ -141,7 +164,6 @@ namespace ELearningPlatform.Controllers
         }
 
 
-        //=========================================================================================
 
        
     }

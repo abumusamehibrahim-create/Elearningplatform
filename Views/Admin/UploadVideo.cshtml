@@ -14,7 +14,7 @@
             }
             
             <form asp-controller="Admin"
-                  asp-action="@(Model != null && Model.Id > 0 ? "UpdateVideo" : "UploadVideo")"
+                  asp-action="@(Model != null && Model.Id > 0 ? "UpdateVideoBunny" : "UploadVideoBunny")"
                   method="post" enctype="multipart/form-data">
                 @Html.AntiForgeryToken()
                 <input type="hidden" name="courseId" value="@ViewBag.CourseId" />

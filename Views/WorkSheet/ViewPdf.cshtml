@@ -5,3 +5,30 @@
         height="900px"
         style="border:none;">
 </iframe>
+<!-- منع الضغط بالزر اليمين -->
+<script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+</script>
+
+<!-- منع Ctrl+S و Ctrl+P و Ctrl+U -->
+<script>
+    document.onkeydown = function (e) {
+        if (e.ctrlKey && (e.key === 's' || e.key === 'p' || e.key === 'u')) {
+            e.preventDefault();
+        }
+    };
+</script>
+
+<!-- منع السحب -->
+<script>
+    document.addEventListener('dragstart', e => e.preventDefault());
+</script>
+
+<!-- منع F12 و Inspect -->
+<script>
+    document.addEventListener('keydown', function (e) {
+        if (e.key === "F12" || (e.ctrlKey && e.shiftKey && e.key === "I")) {
+            e.preventDefault();
+        }
+    });
+</script>

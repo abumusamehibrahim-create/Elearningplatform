@@ -12,11 +12,13 @@ public class WorksheetController : BaseController
     private readonly IWebHostEnvironment _env;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly AzureVideoManager _videoManager;
+    private readonly BunnyStorageManager _bunny;    
     public WorksheetController(ApplicationDbContext context, IConfiguration config, UserManager<ApplicationUser> userManager):base(context)
     {
        // _context = context;
         _userManager = userManager;
         _videoManager = new AzureVideoManager(config); // ⭐ مهم
+        _bunny = new BunnyStorageManager(config);   // ⭐ استبدل Azure → Bunny           
     }
    // private readonly ApplicationDbContext _context;
 
@@ -75,6 +77,33 @@ public class WorksheetController : BaseController
     }
 
 
+    // ---------------- DOWNLOAD (BUNNY) ----------------
+    public async Task<IActionResult> DownloadBunny(int id)
+    {
+        try
+        {
+            var file = _context.WorksheetFiles.FirstOrDefault(f => f.Id == id);
+            if (file == null)
+                return NotFound();
+
+            if (!file.AllowDownload && !User.IsInRole("Admin"))
+                return Unauthorized();
+
+            // ⭐ تحميل من Bunny
+            var bytes = await _bunny.DownloadWorksheetAsync(file.FileName);
+
+            var user = await _userManager.GetUserAsync(User);
+            var watermarked = AddWatermark(bytes, $"Student: {user.UserName}");
+
+            return File(watermarked, "application/pdf", file.FileName);
+        }
+        catch (Exception e)
+        {
+            return Content("Error: " + e.Message);
+        }
+    }
+    //=========================================dOWNLOAD BUNNY
+
     //============================download Action========
     public async Task<IActionResult> Download(int id)
     {
@@ -105,6 +134,20 @@ public class WorksheetController : BaseController
         }
     }
     //=============================================================================
+    // ---------------- VIEW PDF (BUNNY) ----------------
+    public IActionResult ViewPdfBunny(int id)
+    {
+        var file = _context.WorksheetFiles.FirstOrDefault(f => f.Id == id);
+        if (file == null)
+            return NotFound();
+
+        // ⭐ توليد رابط محمي
+        string url = _bunny.GenerateWorksheetSignedUrl(file.FileName);
+
+        return View("ViewPdf", url);
+    }
+
+    //==============================================================
     public async Task<IActionResult> ViewPdf(int id)
     {
         var file = _context.WorksheetFiles.FirstOrDefault(f => f.Id == id);
@@ -194,9 +237,62 @@ public class WorksheetController : BaseController
             return Content("Error: " + e.Message);
         }
     }
-
-    //==============================uploadWorksheet=============
+    //===================================================upload worksheet bunny
     [HttpPost]
+    public async Task<IActionResult> UploadWorksheetBunny(int videoId, IFormFile file)
+    {
+        try
+        {
+            if (file == null)
+            {
+                TempData["Error"] = "يرجى اختيار ملف";
+                return RedirectToAction("WorksheetDetails", new { videoId });
+            }
+
+            var allowed = new[]
+            {
+                ".pdf", ".jpg", ".jpeg", ".png",
+                ".doc", ".docx",
+                ".ppt", ".pptx",
+                ".xls", ".xlsx"
+            };
+
+            var ext = Path.GetExtension(file.FileName).ToLower();
+
+            if (!allowed.Contains(ext))
+            {
+                TempData["Error"] = "نوع الملف غير مدعوم";
+                return RedirectToAction("WorksheetDetails", new { videoId });
+            }
+
+            // ⭐ رفع إلى Bunny
+            var fileName = Guid.NewGuid().ToString("N") + ext;
+            var bunnyUrl = await _bunny.UploadWorksheetAsync(file, fileName);
+
+            _context.WorksheetFiles.Add(new WorksheetFile
+            {
+                VideoId = videoId,
+                FileName = fileName,   // ⭐ نخزن اسم الملف فقط
+                AllowDownload = true
+            });
+
+            await _context.SaveChangesAsync();
+
+            TempData["Success"] = "تم رفع ورقة العمل بنجاح (Bunny)";
+            return RedirectToAction("WorksheetDetails", new { videoId });
+        }
+        catch (Exception e)
+        {
+            return Content("Error: " + e.Message);
+        }
+    }
+
+
+
+
+
+    //==========================================================================
+    //==============================uploadWorksheet=============
     [HttpPost]
     public async Task<IActionResult> UploadWorksheet(int videoId, IFormFile file)
     {
