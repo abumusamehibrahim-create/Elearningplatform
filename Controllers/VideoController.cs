@@ -107,30 +107,57 @@ namespace ELearningPlatform.Controllers
 
         //==================================================================================
 
+        /*  public async Task<IActionResult> Watch(int videoId)
+          {
+              try { 
+              var user = await _userManager.GetUserAsync(User);
+              if (user == null) return RedirectToAction("Login", "Account");
+
+              var video = await _context.Videos
+                  .Include(v => v.Course)
+                  .FirstOrDefaultAsync(v => v.Id == videoId);
+
+              if (video == null) return NotFound();
+
+              //  if (!video.IsFree && !_accessService.UserHasAccess(user.Id, video.CourseId))
+              //return RedirectToAction("Checkout", "Payment", new { courseId = video.CourseId });
+
+              return View(video);
+              }
+              catch (Exception e)
+              {
+                  return Content("Error: " + e.Message);
+              }
+
+          }//==========================================azurestreaming
+          */
         public async Task<IActionResult> Watch(int videoId)
         {
-            try { 
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Account");
+            if (user == null)
+                return RedirectToAction("Login", "Account");
 
             var video = await _context.Videos
                 .Include(v => v.Course)
                 .FirstOrDefaultAsync(v => v.Id == videoId);
 
-            if (video == null) return NotFound();
+            if (video == null)
+                return NotFound();
 
-            //  if (!video.IsFree && !_accessService.UserHasAccess(user.Id, video.CourseId))
-            //return RedirectToAction("Checkout", "Payment", new { courseId = video.CourseId });
-
-            return View(video);
-            }
-            catch (Exception e)
+            // ⭐ إذا كان الفيديو من Bunny Stream
+            if (video.UseBunny)
             {
-                return Content("Error: " + e.Message);
+                string url = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+                ViewBag.VideoUrl = url;
+                return View("WatchBunny", video);
             }
 
-        }//==========================================azurestreaming
-        
+            // ⭐ إذا كان الفيديو محلي أو Azure
+            return View(video);
+        }
+
+
+
 
         public async Task<IActionResult> WatchBunny(int videoId)
         {

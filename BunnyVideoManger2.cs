@@ -73,10 +73,9 @@
             string cdn = _config["BUNNY_STREAM_CDN"];
             string libraryId = _config["BUNNY_STREAM_LIBRARY_ID"];
 
-            long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 60;
+            long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
 
-            // ⭐ رابط MP4 وليس m3u8
-            string path = $"/{libraryId}/{videoId}/play.mp4";
+            string path = $"/{libraryId}/{videoId}/playlist.m3u8";
 
             string hashInput = securityKey + path + expires;
 
@@ -88,6 +87,7 @@
 
             return $"https://{cdn}{path}?token={token}&expires={expires}";
         }
+
 
 
         // ============================================================
