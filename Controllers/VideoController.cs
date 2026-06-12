@@ -142,13 +142,10 @@ namespace ELearningPlatform.Controllers
 
             if (video == null) return NotFound();
 
-            if (video.UseBunny)
-            {
-                video.FileName = _bunny.GenerateSignedUrl(video.BunnyVideoId);
-            }
-
+            // لا تلمس FileName — هو يحتوي رابط CDN الصحيح
             return View("WatchBunny", video);
         }
+
 
 
         [HttpGet("Video/Stream")]

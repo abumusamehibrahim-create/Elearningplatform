@@ -865,8 +865,7 @@ namespace ELearningPlatform.Controllers
                 var existingVideo = _context.Videos
                           .Include(v => v.WorksheetFiles)
                           .Include(v => v.WorksheetItems)
-                          .FirstOrDefault(v => v.Id == id); 
-                if (existingVideo == null)
+                          .FirstOrDefault(v => v.Id == id); if (existingVideo == null)
                     return NotFound();
 
                 existingVideo.Title = title;
