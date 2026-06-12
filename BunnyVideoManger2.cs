@@ -70,11 +70,13 @@
         public string GenerateSignedUrl(string videoId)
         {
             string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
-            string cdn = _config["BUNNY_STREAM_CDN"]; // من Render
+            string cdn = _config["BUNNY_STREAM_CDN"];
+            string libraryId = _config["BUNNY_STREAM_LIBRARY_ID"];
 
             long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 60;
 
-            string path = $"/{_libraryId}/{videoId}/play.m3u8";
+            // ⭐ رابط MP4 وليس m3u8
+            string path = $"/{libraryId}/{videoId}/play.mp4";
 
             string hashInput = securityKey + path + expires;
 
@@ -86,6 +88,7 @@
 
             return $"https://{cdn}{path}?token={token}&expires={expires}";
         }
+
 
         // ============================================================
         // ⭐ 4) Delete Video

@@ -130,6 +130,7 @@ namespace ELearningPlatform.Controllers
             }
 
         }//==========================================azurestreaming
+        
 
         public async Task<IActionResult> WatchBunny(int videoId)
         {
@@ -144,19 +145,21 @@ namespace ELearningPlatform.Controllers
             if (video == null)
                 return NotFound();
 
-            if (video.UseBunny)
-            {
-                string token = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+            if (!video.UseBunny)
+                return View("Watch", video);
 
-                string mp4Url =
-     $"https://{video.BunnyCDNHostname}/{video.BunnyLibraryId}/{video.BunnyVideoId}/play.mp4?token={token}";
+            // 1) الحصول على Token فقط
+            string token = _bunny.GenerateSignedUrl(video.BunnyVideoId);
 
-                ViewBag.VideoUrl = mp4Url;
-            }
+            // 2) إنشاء رابط MP4 الصحيح
+            string mp4Url =
+                $"https://{video.BunnyCDNHostname}/{video.BunnyLibraryId}/{video.BunnyVideoId}/play.mp4?token={token}";
 
+            ViewBag.VideoUrl = mp4Url;
 
             return View("WatchBunny", video);
         }
+
 
 
 
