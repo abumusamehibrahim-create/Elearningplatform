@@ -146,9 +146,14 @@ namespace ELearningPlatform.Controllers
 
             if (video.UseBunny)
             {
-                // لا نعدل FileName أبداً
-                ViewBag.VideoUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+                string token = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+
+                string mp4Url =
+     $"https://{video.BunnyCDNHostname}/{video.BunnyLibraryId}/{video.BunnyVideoId}/play.mp4?token={token}";
+
+                ViewBag.VideoUrl = mp4Url;
             }
+
 
             return View("WatchBunny", video);
         }
