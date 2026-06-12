@@ -128,7 +128,7 @@ public async Task<IActionResult> UploadLessonVideo(IFormFile videoFile, string t
     string videoUrl = _bunny.GetVideoUrl(videoId);
 
     // 4) Save to DB
-    lesson.VideoId = videoId;
+    lesson.VideoId = videoId;   
     lesson.VideoUrl = videoUrl;
     _context.SaveChanges();
 

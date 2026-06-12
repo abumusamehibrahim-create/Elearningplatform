@@ -3,7 +3,7 @@
     ViewData["Title"] = Model.Title;
 
     // Bunny Stream URL (محمي Token)
-    var streamUrl = Model.FileName; // الرابط المحمي الذي أرسلته من الـ Controller
+    var streamUrl = ViewBag.VideoUrl; // ← الصحيح
 }
 
 <div class="alert alert-info m-3">

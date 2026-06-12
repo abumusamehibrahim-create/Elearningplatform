@@ -24,7 +24,7 @@
         @if (file.AllowDownload || User.IsInRole("Admin"))
         {
             <div class="card-footer text-end">
-                <a asp-action="Download" asp-route-id="@file.Id"
+                <a asp-action="DownloadBunny" asp-route-id="@file.Id"
                    class="btn btn-sm btn-outline-danger">
                     <i class="fas fa-download"></i> تحميل
                 </a>

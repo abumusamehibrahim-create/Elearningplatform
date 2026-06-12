@@ -141,11 +141,13 @@ public class WorksheetController : BaseController
         if (file == null)
             return NotFound();
 
-        // ⭐ توليد رابط محمي
+        // توليد رابط محمي
         string url = _bunny.GenerateWorksheetSignedUrl(file.FileName);
 
-        return View("ViewPdf", url);
+        ViewBag.PdfUrl = url;
+        return View("ViewPdf", file);
     }
+
 
     //==============================================================
     public async Task<IActionResult> ViewPdf(int id)
@@ -251,11 +253,11 @@ public class WorksheetController : BaseController
 
             var allowed = new[]
             {
-                ".pdf", ".jpg", ".jpeg", ".png",
-                ".doc", ".docx",
-                ".ppt", ".pptx",
-                ".xls", ".xlsx"
-            };
+            ".pdf", ".jpg", ".jpeg", ".png",
+            ".doc", ".docx",
+            ".ppt", ".pptx",
+            ".xls", ".xlsx"
+        };
 
             var ext = Path.GetExtension(file.FileName).ToLower();
 
@@ -272,7 +274,8 @@ public class WorksheetController : BaseController
             _context.WorksheetFiles.Add(new WorksheetFile
             {
                 VideoId = videoId,
-                FileName = fileName,   // ⭐ نخزن اسم الملف فقط
+                FileName = fileName,   // اسم الملف فقط
+                FilePath = bunnyUrl,   // الرابط الكامل من CDN ← مهم جدًا
                 AllowDownload = true
             });
 

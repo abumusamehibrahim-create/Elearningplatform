@@ -134,17 +134,25 @@ namespace ELearningPlatform.Controllers
         public async Task<IActionResult> WatchBunny(int videoId)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Account");
+            if (user == null)
+                return RedirectToAction("Login", "Account");
 
             var video = await _context.Videos
                 .Include(v => v.Course)
                 .FirstOrDefaultAsync(v => v.Id == videoId);
 
-            if (video == null) return NotFound();
+            if (video == null)
+                return NotFound();
 
-            // لا تلمس FileName — هو يحتوي رابط CDN الصحيح
+            if (video.UseBunny)
+            {
+                // لا نعدل FileName أبداً
+                ViewBag.VideoUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+            }
+
             return View("WatchBunny", video);
         }
+
 
 
 

@@ -900,15 +900,13 @@ namespace ELearningPlatform.Controllers
                     // 3) رفع الفيديو الجديد
                     await _bunny.UploadVideoFileAsync(newVideoId, videoFile);
 
-                    // 4) الحصول على رابط التشغيل
-                    string newVideoUrl = _bunny.GetVideoUrl(newVideoId);
-
                     // 5) تحديث SQL
                     existingVideo.UseBunny = true;
                     existingVideo.BunnyVideoId = newVideoId;
-                    existingVideo.BunnyLibraryId = "681099";
-                    existingVideo.BunnyCDNHostname = "vz-8910d323-df2.b-cdn.net";
-                    existingVideo.FileName = newVideoUrl;
+                    existingVideo.BunnyLibraryId = _config["BUNNY_STREAM_LIBRARY_ID"];
+                    existingVideo.BunnyCDNHostname = _config["BUNNY_STREAM_CDN"];
+                    existingVideo.FileName = newVideoId; // نخزن VideoId فقط
+
                 }
 
                 await _context.SaveChangesAsync();
@@ -1783,15 +1781,13 @@ namespace ELearningPlatform.Controllers
                     // 3) رفع الفيديو الجديد
                     await _bunny.UploadVideoFileAsync(newVideoId, videoFile);
 
-                    // 4) الحصول على رابط التشغيل
-                    string newVideoUrl = _bunny.GetVideoUrl(newVideoId);
-
                     // 5) تحديث بيانات الفيديو
                     video.UseBunny = true;
                     video.BunnyVideoId = newVideoId;
-                    video.BunnyLibraryId = "681099";
-                    video.BunnyCDNHostname = "vz-8910d323-df2.b-cdn.net";
-                    video.FileName = newVideoUrl;
+                    video.BunnyLibraryId = _config["BUNNY_STREAM_LIBRARY_ID"];
+                    video.BunnyCDNHostname = _config["BUNNY_STREAM_CDN"];
+                    video.FileName = newVideoId; // نخزن VideoId فقط
+                   
                 }
 
                 // ============================================================
@@ -2173,17 +2169,20 @@ namespace ELearningPlatform.Controllers
         public async Task<IActionResult> WatchBunny(int videoId)
         {
             var user = await _userManager.GetUserAsync(User);
-            if (user == null) return RedirectToAction("Login", "Account");
+            if (user == null)
+                return RedirectToAction("Login", "Account");
 
             var video = await _context.Videos
                 .Include(v => v.Course)
                 .FirstOrDefaultAsync(v => v.Id == videoId);
 
-            if (video == null) return NotFound();
+            if (video == null)
+                return NotFound();
 
             if (video.UseBunny)
             {
-                video.FileName = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+                // لا نعدل FileName أبداً
+                ViewBag.VideoUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
             }
 
             return View("WatchBunny", video);

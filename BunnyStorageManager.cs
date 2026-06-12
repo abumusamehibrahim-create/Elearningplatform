@@ -63,7 +63,7 @@
         public string GenerateWorksheetSignedUrl(string fileName)
         {
             string securityKey = _config["BUNNY_STORAGE_SECURITY_KEY"];
-            string cdnHostname = _config["BUNNY_STORAGE_CDN"];
+            string cdnHostname = _config["BUNNY_STORAGE_CDN"]; // بدون https
 
             long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 60;
 
@@ -79,6 +79,7 @@
 
             return $"https://{cdnHostname}{path}?token={token}&expires={expires}";
         }
+
         public async Task<byte[]> DownloadWorksheetAsync(string fileName)
         {
             var url = $"https://storage.bunnycdn.com/{_storageZone}/worksheets/{fileName}";
