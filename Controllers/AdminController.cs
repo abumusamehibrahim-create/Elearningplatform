@@ -767,9 +767,8 @@ namespace ELearningPlatform.Controllers
 
                     // 1) إنشاء Video ID داخل Bunny Stream
                     string videoId = await _bunny.CreateVideoAsync(title);
-
-                    // 2) رفع الفيديو نفسه
                     await _bunny.UploadVideoFileAsync(videoId, videoFile);
+
 
                     // 3) الحصول على رابط التشغيل
                     //string videoUrl = _bunny.GetVideoUrl(videoId);

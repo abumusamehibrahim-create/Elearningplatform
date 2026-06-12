@@ -26,41 +26,52 @@
             متصفحك لا يدعم تشغيل الفيديو.
         </video>
 
+        <!-- HLS.js -->
         <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 
         <script>
-            var video = document.getElementById('videoPlayer');
-            var url = "@streamUrl";
+            const video = document.getElementById('videoPlayer');
+            const url = "@streamUrl";
 
             console.log("Loading URL:", url);
 
+            if (!url || url.trim() === "") {
+                console.error("❌ Stream URL is empty");
+            }
+
             if (Hls.isSupported()) {
-                var hls = new Hls();
+                const hls = new Hls({
+                    debug: true,
+                    xhrSetup: function (xhr) {
+                        xhr.withCredentials = false;
+                    }
+                });
+
                 hls.loadSource(url);
                 hls.attachMedia(video);
 
+                hls.on(Hls.Events.MANIFEST_PARSED, function () {
+                    console.log("✔ HLS Manifest Loaded");
+                });
+
                 hls.on(Hls.Events.ERROR, function (event, data) {
-                    console.error("HLS.js error:", data);
+                    console.error("❌ HLS.js error:", data);
                 });
             }
-            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            else if (video.canPlayType("application/vnd.apple.mpegurl")) {
                 video.src = url; // Safari
             }
             else {
-                console.error("HLS not supported in this browser");
+                console.error("❌ HLS not supported in this browser");
             }
+
+            video.addEventListener("error", () => {
+                console.error("❌ Video element error:", video.error);
+            });
+
+            video.addEventListener("loadstart", () => console.log("⏳ Loading Bunny Stream..."));
+            video.addEventListener("canplay", () => console.log("✔ Bunny Stream Ready"));
         </script>
 
     </div>
 </div>
-
-<script>
-    const video = document.getElementById('videoPlayer');
-
-    video.addEventListener('error', () => {
-        console.error('Video error:', video.error);
-    });
-
-    video.addEventListener('loadstart', () => console.log('Loading Bunny Stream...'));
-    video.addEventListener('canplay', () => console.log('Bunny Stream Ready'));
-</script>

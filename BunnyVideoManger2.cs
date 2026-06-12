@@ -107,6 +107,45 @@
         {
             return GenerateSignedUrl(videoId);
         }
+        private async Task<string> Bunny_CreateVideo(string title)
+        {
+            string libraryId = _config["BUNNY_STREAM_LIBRARY_ID"];
+            string apiKey = _config["BUNNY_STREAM_API_KEY"];
+
+            var url = $"https://video.bunnycdn.com/library/{libraryId}/videos";
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("AccessKey", apiKey);
+
+            var response = await client.PostAsync(url, null);
+            var json = await response.Content.ReadAsStringAsync();
+
+            dynamic data = Newtonsoft.Json.JsonConvert.DeserializeObject(json);
+            return data.guid;
+        }
+
+        private async Task Bunny_UploadVideo(string videoId, IFormFile file)
+        {
+            string libraryId = _config["BUNNY_STREAM_LIBRARY_ID"];
+            string apiKey = _config["BUNNY_STREAM_API_KEY"];
+
+            var url = $"https://video.bunnycdn.com/library/{libraryId}/videos/{videoId}";
+
+            using var client = new HttpClient();
+            client.DefaultRequestHeaders.Add("AccessKey", apiKey);
+
+            using var stream = file.OpenReadStream();
+            var request = new HttpRequestMessage(HttpMethod.Put, url)
+            {
+                Content = new StreamContent(stream)
+            };
+
+            request.Content.Headers.ContentType =
+                new System.Net.Http.Headers.MediaTypeHeaderValue("video/mp4");
+
+            var response = await client.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+        }
 
 
     }
