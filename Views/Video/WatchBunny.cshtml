@@ -2,8 +2,8 @@
 @{
     ViewData["Title"] = Model.Title;
 
-    // Bunny Stream URL (محمي Token)
-    var streamUrl = ViewBag.VideoUrl; // ← الصحيح
+    // رابط HLS القادم من Controller
+    var streamUrl = ViewBag.VideoUrl;
 }
 
 <div class="alert alert-info m-3">
@@ -11,30 +11,45 @@
     <p><strong>Video ID:</strong> @Model.Id</p>
     <p><strong>Bunny Video ID:</strong> @Model.BunnyVideoId</p>
     <p><strong>CDN Hostname:</strong> @Model.BunnyCDNHostname</p>
-    <p><strong>Stream URL (Token):</strong> @streamUrl</p>
+    <p><strong>Stream URL:</strong> @streamUrl</p>
 </div>
 
 <div style="background:#000;">
     <div class="container px-0">
 
-        <video id="videoPlayer" controls width="100%" style="max-height:70vh;">
-            <source src="@streamUrl" type="application/x-mpegURL" />
+        <video id="videoPlayer"
+               controls
+               width="100%"
+               style="max-height:70vh;"
+               controlsList="nodownload"
+               oncontextmenu="return false;">
+            متصفحك لا يدعم تشغيل الفيديو.
         </video>
 
         <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
         <script>
             var video = document.getElementById('videoPlayer');
             var url = "@streamUrl";
+
+            console.log("Loading URL:", url);
 
             if (Hls.isSupported()) {
                 var hls = new Hls();
                 hls.loadSource(url);
                 hls.attachMedia(video);
-            } else {
-                video.src = url;
+
+                hls.on(Hls.Events.ERROR, function (event, data) {
+                    console.error("HLS.js error:", data);
+                });
+            }
+            else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                video.src = url; // Safari
+            }
+            else {
+                console.error("HLS not supported in this browser");
             }
         </script>
-
 
     </div>
 </div>

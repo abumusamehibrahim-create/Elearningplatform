@@ -69,7 +69,7 @@
         // ============================================================
         public string GenerateSignedUrl(string videoId)
         {
-            string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
+            string securityKey = _config["7ca4de13-6d77-4e14-87e4-8fd7d8edfa45"];
             string cdn = _config["BUNNY_STREAM_CDN"];
             string libraryId = _config["BUNNY_STREAM_LIBRARY_ID"];
 
@@ -87,6 +87,7 @@
 
             return $"https://{cdn}{path}?token={token}&expires={expires}";
         }
+
 
 
 

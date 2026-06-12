@@ -144,11 +144,14 @@ namespace ELearningPlatform.Controllers
             if (video == null)
                 return NotFound();
 
-            // ⭐ إذا كان الفيديو من Bunny Stream
+            // ⭐ إذا كان الفيديو من Bunny Stream (بدون Token)
             if (video.UseBunny)
             {
-                string url = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+                // رابط مباشر بدون توقيع
+                string url = $"https://{video.BunnyCDNHostname}/682051/{video.BunnyVideoId}/playlist.m3u8";
+
                 ViewBag.VideoUrl = url;
+
                 return View("WatchBunny", video);
             }
 
