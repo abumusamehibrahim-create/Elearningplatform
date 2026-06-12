@@ -414,6 +414,7 @@ namespace ELearningPlatform.Controllers
         //=================================DeleteCourse bunny=============================
 
         [HttpGet]
+        [HttpGet]
         public async Task<IActionResult> DeleteCourseBunny(int id)
         {
             try
@@ -430,22 +431,18 @@ namespace ELearningPlatform.Controllers
 
                 foreach (var video in course.Videos)
                 {
-                    // ============================
                     // 1) حذف Worksheets من Bunny Storage
-                    // ============================
                     foreach (var ws in video.WorksheetFiles)
                     {
                         try
                         {
-                            string fileName = Path.GetFileName(new Uri(ws.FilePath).LocalPath);
+                            string fileName = ws.FileName; // ← التصحيح
                             await _bunnyStorage.DeleteWorksheetAsync(fileName);
                         }
                         catch { }
                     }
 
-                    // ============================
                     // 2) حذف الفيديو من Bunny Stream
-                    // ============================
                     try
                     {
                         if (!string.IsNullOrEmpty(video.BunnyVideoId))
@@ -454,20 +451,15 @@ namespace ELearningPlatform.Controllers
                     catch { }
                 }
 
-                // ============================
-                // 3) حذف البيانات من SQL
-                // ============================
+                // 3) حذف البيانات من قاعدة البيانات
                 _context.WorksheetItems.RemoveRange(course.Videos.SelectMany(v => v.WorksheetItems));
                 _context.WorksheetFiles.RemoveRange(course.Videos.SelectMany(v => v.WorksheetFiles));
                 _context.Videos.RemoveRange(course.Videos);
-
-                // ⚠️ لا نحذف Payments
-                // ⚠️ لا نحذف UserCourse
-
                 _context.Courses.Remove(course);
+
                 await _context.SaveChangesAsync();
 
-                TempData["Success"] = "تم حذف الكورس (Bunny) بنجاح";
+                TempData["Success"] = "تم حذف الكورس بنجاح";
                 return RedirectToAction("Courses");
             }
             catch (Exception e)
@@ -475,6 +467,7 @@ namespace ELearningPlatform.Controllers
                 return Content("Error: " + e.Message);
             }
         }
+
 
 
         //=================================End DeleteCourse bunny=============================
@@ -696,22 +689,18 @@ namespace ELearningPlatform.Controllers
 
                 foreach (var video in course.Videos)
                 {
-                    // ============================
                     // 1) حذف Worksheets من Bunny Storage
-                    // ============================
                     foreach (var ws in video.WorksheetFiles)
                     {
                         try
                         {
-                            string fileName = Path.GetFileName(new Uri(ws.FilePath).LocalPath);
+                            string fileName = ws.FileName; // ← التصحيح
                             await _bunnyStorage.DeleteWorksheetAsync(fileName);
                         }
                         catch { }
                     }
 
-                    // ============================
                     // 2) حذف الفيديو من Bunny Stream
-                    // ============================
                     try
                     {
                         if (!string.IsNullOrEmpty(video.BunnyVideoId))
@@ -720,14 +709,12 @@ namespace ELearningPlatform.Controllers
                     catch { }
                 }
 
-                // ============================
                 // 3) حذف البيانات من SQL
-                // ============================
                 _context.WorksheetItems.RemoveRange(course.Videos.SelectMany(v => v.WorksheetItems));
                 _context.WorksheetFiles.RemoveRange(course.Videos.SelectMany(v => v.WorksheetFiles));
                 _context.Videos.RemoveRange(course.Videos);
-
                 _context.Courses.Remove(course);
+
                 await _context.SaveChangesAsync();
 
                 TempData["Success"] = "تم حذف الكورس (Bunny) بنجاح";
@@ -738,6 +725,7 @@ namespace ELearningPlatform.Controllers
                 return Content("Error: " + e.Message);
             }
         }
+
 
         //===================================ConfirmDeleteCourseBunny===============================
 
@@ -784,7 +772,7 @@ namespace ELearningPlatform.Controllers
                     await _bunny.UploadVideoFileAsync(videoId, videoFile);
 
                     // 3) الحصول على رابط التشغيل
-                    string videoUrl = _bunny.GetVideoUrl(videoId);
+                    //string videoUrl = _bunny.GetVideoUrl(videoId);
 
                     // 4) حفظ الفيديو في SQL باستخدام نفس متغيرات الموديل
                     var video = new Video
@@ -798,11 +786,11 @@ namespace ELearningPlatform.Controllers
                         // ⭐ تخزين بيانات Bunny
                         UseBunny = true,
                         BunnyVideoId = videoId,
-                        BunnyLibraryId = "681909",
-                        BunnyCDNHostname = "vz-8910d323-df2.b-cdn.net",
+                        BunnyLibraryId = _config["BUNNY_STREAM_LIBRARY_ID"],
+                        BunnyCDNHostname = _config["BUNNY_STREAM_CDN"],
 
                         // ⭐ FileName = رابط التشغيل
-                        FileName = videoUrl
+                        FileName = videoId
                     };
 
                     _context.Videos.Add(video);
@@ -874,7 +862,10 @@ namespace ELearningPlatform.Controllers
                 // ============================================================
                 // 4) تعديل فيديو موجود
                 // ============================================================
-                var existingVideo = _context.Videos.FirstOrDefault(v => v.Id == id);
+                var existingVideo = _context.Videos
+                          .Include(v => v.WorksheetFiles)
+                          .Include(v => v.WorksheetItems)
+                          .FirstOrDefault(v => v.Id == id); 
                 if (existingVideo == null)
                     return NotFound();
 
@@ -916,7 +907,7 @@ namespace ELearningPlatform.Controllers
                     // 5) تحديث SQL
                     existingVideo.UseBunny = true;
                     existingVideo.BunnyVideoId = newVideoId;
-                    existingVideo.BunnyLibraryId = "681909";
+                    existingVideo.BunnyLibraryId = "681099";
                     existingVideo.BunnyCDNHostname = "vz-8910d323-df2.b-cdn.net";
                     existingVideo.FileName = newVideoUrl;
                 }
@@ -1799,7 +1790,7 @@ namespace ELearningPlatform.Controllers
                     // 5) تحديث بيانات الفيديو
                     video.UseBunny = true;
                     video.BunnyVideoId = newVideoId;
-                    video.BunnyLibraryId = "681909";
+                    video.BunnyLibraryId = "681099";
                     video.BunnyCDNHostname = "vz-8910d323-df2.b-cdn.net";
                     video.FileName = newVideoUrl;
                 }
@@ -1811,7 +1802,7 @@ namespace ELearningPlatform.Controllers
                 {
                     try
                     {
-                        string oldWsName = Path.GetFileName(new Uri(oldWs.FilePath).LocalPath);
+                        string oldWsName = oldWs.FileName; // ← التصحيح
                         await _bunnyStorage.DeleteWorksheetAsync(oldWsName);
                     }
                     catch { }
@@ -2099,8 +2090,9 @@ namespace ELearningPlatform.Controllers
                 {
                     try
                     {
-                        string wsFileName = Path.GetFileName(new Uri(ws.FilePath).LocalPath);
+                        string wsFileName = ws.FileName;
                         await _bunnyStorage.DeleteWorksheetAsync(wsFileName);
+
                     }
                     catch { }
                 }

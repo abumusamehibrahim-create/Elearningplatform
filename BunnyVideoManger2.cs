@@ -9,14 +9,15 @@
     public class BunnyVideoManager2
     {
         private readonly HttpClient _http;
+        private readonly IConfiguration _config;
         private readonly string _libraryId;
         private readonly string _apiKey;
-        private readonly IConfiguration _config;
+
         public BunnyVideoManager2(IConfiguration config)
         {
-            _http = new HttpClient();
             _config = config;
-            // VALUES FROM YOUR BUNNY ACCOUNT
+            _http = new HttpClient();
+
             _libraryId = config["BUNNY_STREAM_LIBRARY_ID"];
             _apiKey = config["BUNNY_STREAM_API_KEY"];
         }
@@ -41,7 +42,7 @@
             var responseJson = await response.Content.ReadAsStringAsync();
             dynamic data = JsonConvert.DeserializeObject(responseJson);
 
-            return data.guid; // Video ID
+            return data.guid;
         }
 
         // ============================================================
@@ -64,11 +65,26 @@
         }
 
         // ============================================================
-        // ⭐ 3) Get Video Playback URL
+        // ⭐ 3) Generate Signed URL (HLS)
         // ============================================================
-        public string GetVideoUrl(string videoId)
+        public string GenerateSignedUrl(string videoId)
         {
-            return $"https://iframe.mediadelivery.net/embed/{_libraryId}/{videoId}";
+            string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
+            string cdn = _config["BUNNY_STREAM_CDN"]; // من Render
+
+            long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 60;
+
+            string path = $"/{_libraryId}/{videoId}/play.m3u8";
+
+            string hashInput = securityKey + path + expires;
+
+            string token = Convert.ToHexString(
+                System.Security.Cryptography.SHA256.HashData(
+                    System.Text.Encoding.UTF8.GetBytes(hashInput)
+                )
+            ).ToLower();
+
+            return $"https://{cdn}{path}?token={token}&expires={expires}";
         }
 
         // ============================================================
@@ -83,33 +99,15 @@
 
             await _http.SendAsync(request);
         }
-        //security function for video
-        public string GenerateSignedUrl(string videoId)
+        public string GetVideoUrl(string videoId)
         {
-            string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
-            string libraryId = _config["BUNNY_STREAM_LIBRARY_ID"];
-            string hostname = "vz-8910d323-df2.b-cdn.net"; // CDN الخاص بك
-
-            long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 60;
-
-            string path = $"/{libraryId}/{videoId}/play.m3u8";
-
-            string hashInput = securityKey + path + expires;
-
-            string token = Convert.ToHexString(
-                System.Security.Cryptography.SHA256.HashData(
-                    System.Text.Encoding.UTF8.GetBytes(hashInput)
-                )
-            ).ToLower();
-
-            return $"https://{hostname}{path}?token={token}&expires={expires}";
+            return GenerateSignedUrl(videoId);
         }
-
-        //===========================✔ Watch Action مع حماية Token=scurity for link copy====
 
 
     }
 }
+
 /*
  private readonly BunnyVideoManager _bunny;
 

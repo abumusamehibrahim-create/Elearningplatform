@@ -10,32 +10,16 @@
         private readonly HttpClient _http;
         private readonly string _storageZone;
         private readonly string _apiKey;
-        private readonly string _region;
         private readonly string _cdnBaseUrl;
         private readonly IConfiguration _config;
-
-        public async Task<byte[]> DownloadWorksheetAsync(string fileName)
-        {
-            var url = $"https://{_region}.storage.bunnycdn.com/{_storageZone}/worksheets/{fileName}";
-
-            var request = new HttpRequestMessage(HttpMethod.Get, url);
-            request.Headers.Add("AccessKey", _apiKey);
-
-            var response = await _http.SendAsync(request);
-            response.EnsureSuccessStatusCode();
-
-            return await response.Content.ReadAsByteArrayAsync();
-        }
 
         public BunnyStorageManager(IConfiguration config)
         {
             _http = new HttpClient();
 
-            _storageZone = config["BUNNY_STORAGE_ZONE"];          // مثال: elearning-worksheets
-            _apiKey = config["BUNNY_STORAGE_API_KEY"];            // Storage API Key
-            _region = config["BUNNY_STORAGE_REGION"];             // ny / de / sg
+            _storageZone = config["BUNNY_STORAGE_ZONE"];
+            _apiKey = config["BUNNY_STORAGE_API_KEY"];
             _cdnBaseUrl = config["BUNNY_STORAGE_CDN"];
-            // https://yourzone.b-cdn.net
             _config = config;
         }
 
@@ -44,7 +28,7 @@
         // ============================================================
         public async Task<string> UploadWorksheetAsync(IFormFile file, string fileName)
         {
-            var url = $"https://{_region}.storage.bunnycdn.com/{_storageZone}/worksheets/{fileName}";
+            var url = $"https://storage.bunnycdn.com/{_storageZone}/worksheets/{fileName}";
 
             using var stream = file.OpenReadStream();
             var content = new StreamContent(stream);
@@ -65,39 +49,48 @@
         // ============================================================
         public async Task DeleteWorksheetAsync(string fileName)
         {
-            var url = $"https://{_region}.storage.bunnycdn.com/{_storageZone}/worksheets/{fileName}";
+            var url = $"https://storage.bunnycdn.com/{_storageZone}/worksheets/{fileName}";
 
             var request = new HttpRequestMessage(HttpMethod.Delete, url);
             request.Headers.Add("AccessKey", _apiKey);
 
             await _http.SendAsync(request);
         }
+
+        // ============================================================
+        // ⭐ Generate Signed URL (Token Protected)
+        // ============================================================
         public string GenerateWorksheetSignedUrl(string fileName)
         {
             string securityKey = _config["BUNNY_STORAGE_SECURITY_KEY"];
-            string storageZone = _config["BUNNY_STORAGE_ZONE"];
             string cdnHostname = _config["BUNNY_STORAGE_CDN"];
-            // مثال: myzone.b-cdn.net
 
-            long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 60; // صالح دقيقة واحدة
+            long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 60;
 
-            string path = $"/{storageZone}/worksheets/{fileName}";
+            string path = $"/{_storageZone}/worksheets/{fileName}";
 
             string hashInput = securityKey + path + expires;
 
             string token = Convert.ToHexString(
                 System.Security.Cryptography.SHA256.HashData(
-                    System.Text.Encoding.UTF8.GetBytes(hashInput)
+                    Encoding.UTF8.GetBytes(hashInput)
                 )
             ).ToLower();
 
-            // ⭐ الرابط النهائي
-            string worksheetLink = $"https://{cdnHostname}{path}?token={token}&expires={expires}";
-
-            return worksheetLink;
+            return $"https://{cdnHostname}{path}?token={token}&expires={expires}";
         }
+        public async Task<byte[]> DownloadWorksheetAsync(string fileName)
+        {
+            var url = $"https://storage.bunnycdn.com/{_storageZone}/worksheets/{fileName}";
 
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            request.Headers.Add("AccessKey", _apiKey);
 
+            var response = await _http.SendAsync(request);
+            response.EnsureSuccessStatusCode();
+
+            return await response.Content.ReadAsByteArrayAsync();
+        }
 
     }
 }
