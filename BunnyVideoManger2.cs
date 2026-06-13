@@ -101,8 +101,14 @@
             var request = new HttpRequestMessage(HttpMethod.Delete, url);
             request.Headers.Add("AccessKey", _apiKey);
 
-            await _http.SendAsync(request);
+            var response = await _http.SendAsync(request);
+
+            string result = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("Bunny Delete Response: " + result);
+
+            response.EnsureSuccessStatusCode();
         }
+
         public string GetVideoUrl(string videoId)
         {
             return GenerateSignedUrl(videoId);
