@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = Model.Title;
 
-    // رابط HLS القادم من الـ Controller
+    // رابط HLS القادم من Controller
     var streamUrl = ViewBag.VideoUrl;
 }
 
@@ -33,7 +33,7 @@
             const video = document.getElementById('videoPlayer');
             const url = "@streamUrl";
 
-            console.log("🔗 Loading HLS URL:", url);
+            console.log("Loading URL:", url);
 
             if (!url || url.trim() === "") {
                 console.error("❌ Stream URL is empty");
@@ -41,23 +41,27 @@
 
             if (Hls.isSupported()) {
                 const hls = new Hls({
-                    debug: true
+                    debug: true,
+                    xhrSetup: function (xhr) {
+                        xhr.withCredentials = false;
+                    }
                 });
 
                 hls.loadSource(url);
                 hls.attachMedia(video);
 
                 hls.on(Hls.Events.MANIFEST_PARSED, function () {
-                    console.log("✔ Manifest Loaded");
+                    console.log("✔ HLS Manifest Loaded");
                 });
 
                 hls.on(Hls.Events.ERROR, function (event, data) {
                     console.error("❌ HLS.js error:", data);
                 });
-
-            } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+            }
+            else if (video.canPlayType("application/vnd.apple.mpegurl")) {
                 video.src = url; // Safari
-            } else {
+            }
+            else {
                 console.error("❌ HLS not supported in this browser");
             }
 

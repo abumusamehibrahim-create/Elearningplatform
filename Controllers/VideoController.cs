@@ -148,7 +148,7 @@ namespace ELearningPlatform.Controllers
             if (video.UseBunny)
             {
                 // رابط مباشر بدون توقيع
-                string url = $"https://{video.BunnyCDNHostname}/682051/{video.BunnyVideoId}/playlist.m3u8";
+                string url = $"https://{video.BunnyCDNHostname}/{video.BunnyVideoId}/playlist.m3u8";
 
                 ViewBag.VideoUrl = url;
 
@@ -178,11 +178,11 @@ namespace ELearningPlatform.Controllers
             if (!video.UseBunny)
                 return View("Watch", video);
 
-            // ⭐ 1) إنشاء رابط HLS الصحيح (playlist.m3u8)
+            // ⭐ الرابط الصحيح بدون Library ID (كما قال Bunny Support)
             string hlsUrl =
-                $"https://{video.BunnyCDNHostname}/{video.BunnyLibraryId}/{video.BunnyVideoId}/playlist.m3u8";
+                $"https://{video.BunnyCDNHostname}/{video.BunnyVideoId}/playlist.m3u8";
 
-            // ⭐ 2) إرسال الرابط إلى الصفحة
+            // ⭐ إرسال الرابط إلى الصفحة
             ViewBag.VideoUrl = hlsUrl;
 
             return View("WatchBunny", video);
@@ -192,10 +192,11 @@ namespace ELearningPlatform.Controllers
 
 
 
-       
 
 
-       
+
+
+
     }
 }
 
