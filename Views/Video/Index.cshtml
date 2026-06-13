@@ -19,8 +19,7 @@
             {
                 <div class="video-item d-flex align-items-center mb-3 rounded-3 shadow-sm"
                      style="background:white; padding:16px; border-right:4px solid #e74c3c; cursor:pointer;"
-                     onclick="window.location.href='@(video.UseBunny? Url.Action("WatchBunny", "Video", new { videoId = video.Id })
-                         : Url.Action("Watch", "Video", new { videoId = video.Id }))'">
+                     onclick="window.location.href='@Url.Action("WatchBunny", "Video", new { videoId = video.Id })'">
 
 
                     <div class="me-3">
@@ -72,7 +71,7 @@
                 @foreach (var video in Model)
                 {
                     <a asp-controller="Video"
-                       asp-action="@(video.UseBunny ? "WatchBunny" : "Watch")"
+                       asp-action=" WatchBunny"
                        asp-route-videoId="@video.Id"
                        class="d-flex align-items-center py-2 text-decoration-none text-dark border-bottom">
                         <i class="fas fa-play-circle text-danger me-2"></i>

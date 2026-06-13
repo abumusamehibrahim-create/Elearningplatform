@@ -25,14 +25,29 @@
     <div class="container px-0">
         <video id="videoPlayer" controls class="w-100" style="max-height:70vh; display:block;"
                controlsList="nodownload" oncontextmenu="return false;">
-            <!--<source src="@Model.StreamUrl" type="application/x-mpegURL" />-->
-         <!--   <source src="@Url.Action("Stream","Video",new{videoId=Model.Id})" type="video/mp4" />
-               <source src="@Model.StreamUrl" type="video/mp4" />-->
-            <!--  <source src="@Model.FileName" type="video/mp4" />-->
-            <source src="@Model.FileName" type="application/x-mpegURL" />
-
             متصفحك لا يدعم تشغيل الفيديو.
         </video>
+
+        <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+
+        <script>
+            const video = document.getElementById('videoPlayer');
+            const url = "@ViewBag.VideoUrl";
+
+            console.log("Loading Bunny HLS:", url);
+
+            if (Hls.isSupported()) {
+                const hls = new Hls({ debug: false });
+                hls.loadSource(url);
+                hls.attachMedia(video);
+            } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+                video.src = url;
+            } else {
+                console.error("HLS not supported");
+            }
+        </script>
+
+
     </div>
 </div>
 

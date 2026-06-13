@@ -16,7 +16,7 @@ namespace ELearningPlatform.Controllers
     {
         // private readonly ApplicationDbContext _db;
         private readonly ILogger<VideoController> _logger;
-        private readonly AzureVideoManager _videoManager;
+        //private readonly AzureVideoManager _videoManager;
 
         private readonly IWebHostEnvironment _env;
         private readonly UserManager<ApplicationUser> _userManager;
@@ -32,7 +32,7 @@ namespace ELearningPlatform.Controllers
             _env = env;
             _userManager = userManager;
             _accessService = accessService;
-            _videoManager = new AzureVideoManager(config);
+         //   _videoManager = new AzureVideoManager(config);
             _bunny = new BunnyVideoManager2(config);
 
         }
@@ -178,14 +178,12 @@ namespace ELearningPlatform.Controllers
             if (!video.UseBunny)
                 return View("Watch", video);
 
-            // 1) الحصول على Token فقط
-            string token = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+            // ⭐ 1) إنشاء رابط HLS الصحيح (playlist.m3u8)
+            string hlsUrl =
+                $"https://{video.BunnyCDNHostname}/{video.BunnyLibraryId}/{video.BunnyVideoId}/playlist.m3u8";
 
-            // 2) إنشاء رابط MP4 الصحيح
-            string mp4Url =
-                $"https://{video.BunnyCDNHostname}/{video.BunnyLibraryId}/{video.BunnyVideoId}/play.mp4?token={token}";
-
-            ViewBag.VideoUrl = mp4Url;
+            // ⭐ 2) إرسال الرابط إلى الصفحة
+            ViewBag.VideoUrl = hlsUrl;
 
             return View("WatchBunny", video);
         }
@@ -194,18 +192,7 @@ namespace ELearningPlatform.Controllers
 
 
 
-        [HttpGet("Video/Stream")]
-        public async Task<IActionResult> StreamAzure(int videoId)
-        {
-            var video = await _context.Videos.FindAsync(videoId);
-            if (video == null)
-                return NotFound();
-
-            var stream = await _videoManager.StreamVideoAsync(video.FileName);
-
-            return File(stream, "video/mp4", enableRangeProcessing: true);
-        }
-
+       
 
 
        
