@@ -52,7 +52,7 @@
                     </td>
                     <td class="text-muted small">@video.CreatedAt.ToString("yyyy/MM/dd")</td>
                     <td>
-                        <form asp-controller="Admin" asp-action="DeleteVideo" method="post"
+                        <form asp-controller="Admin" asp-action="DeleteVideoBunny" method="post"
                               onsubmit="return confirm('هل أنت متأكد من حذف هذا الفيديو ,وما له علاقة بالفديو من ملفات؟')">
                             @Html.AntiForgeryToken()
                             <input type="hidden" name="videoId" value="@video.Id" />
@@ -81,7 +81,7 @@
                     </a>
 
                     <!-- زر حذف -->
-                    <form asp-controller="Admin" asp-action="DeleteVideo" method="post"
+                    <form asp-controller="Admin" asp-action="DeleteVideoBunny" method="post"
                           onsubmit="return confirm('هل أنت متأكد من حذف هذا الفيديو؟')">
                         @Html.AntiForgeryToken()
                         <input type="hidden" name="videoId" value="@video.Id" />
