@@ -68,7 +68,7 @@
         // ============================================================
         // ⭐ 3) Generate Signed URL (HLS)
         // ============================================================
-        public string GenerateSignedUrl(string videoId)
+     /*   public string GenerateSignedUrl(string videoId)
         {
             string securityKey = _config["BUNNY_CDN_TOKEN_KEY"];
             string cdnHostname = _config["BUNNY_CDN_HOSTNAME"];
@@ -95,31 +95,32 @@
 
             return $"https://{cdnHostname}/{videoId}/playlist.m3u8?bcdn_token={token}&expires={expires}";
         }
+     */
 
-      /*  public string GenerateSignedUrl(string videoId)
-        {
-           // string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
-            string securityKey = _config["BUNNY_CDN_TOKEN_KEY"];
+        public string GenerateSignedUrl(string videoId)
+          {
+              string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
+              //string securityKey = _config["BUNNY_CDN_TOKEN_KEY"];
 
-            string cdn = _config["BUNNY_STREAM_CDN"];
+              string cdn = _config["BUNNY_STREAM_CDN"];
 
-            long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
+              long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
 
-            string path = $"/{videoId}/playlist.m3u8";
-
-
-            string hashInput = $"{securityKey}{path}{expires}";
-
-            using var sha = SHA256.Create();
-            var hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(hashInput));
-            string token = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-            
+              string path = $"/{videoId}/playlist.m3u8";
 
 
-            return $"https://{cdn}{path}?token={token}&expires={expires}";
-        }
+              string hashInput = $"{securityKey}{path}{expires}";
 
-        */
+              using var sha = SHA256.Create();
+              var hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(hashInput));
+              string token = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+
+
+
+              return $"https://{cdn}{path}?token={token}&expires={expires}";
+          }
+
+          
 
         // ============================================================
         // ⭐ 4) Delete Video

@@ -23,6 +23,7 @@ namespace ELearningPlatform.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly VideoAccessService _accessService;
         private readonly BunnyVideoManager2 _bunny;
+        private readonly IConfiguration _config;
 
         public VideoController(ApplicationDbContext db,
             IWebHostEnvironment env, IConfiguration config,
@@ -30,6 +31,7 @@ namespace ELearningPlatform.Controllers
             VideoAccessService accessService) : base(db)
         {
             // _db = db;
+            _config = config;
             _env = env;
             _userManager = userManager;
             _accessService = accessService;
@@ -245,14 +247,14 @@ namespace ELearningPlatform.Controllers
             // ⭐ إرسال الرابط إلى الصفحة
             ViewBag.VideoUrl = signedUrl;
 
-            // ⭐ إرسال معلومات الـ Debug إلى الصفحة
-           ViewBag.DebugInfo = new List<string>
-    {
-        "SIGNED URL = " + signedUrl,
-        "BUNNY VIDEO ID = " + video.BunnyVideoId,
-        "CDN = " + video.BunnyCDNHostname,
-        "PATH = /" + video.BunnyVideoId + "/playlist.m3u8"
-    };
+            ViewBag.DebugInfo = new List<string>
+{
+    "SIGNED URL = " + signedUrl,
+    "BUNNY VIDEO ID = " + video.BunnyVideoId,
+    "CDN = " + _config["BUNNY_CDN_HOSTNAME"],
+    "PATH = /" + video.BunnyVideoId + "/"   // ✔ الصحيح
+};
+
 
             // ⭐ طباعة في Render Logs (اختياري)
             Console.WriteLine("=== BUNNY DEBUG ===");
