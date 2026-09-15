@@ -75,7 +75,8 @@
 
             long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
 
-            string path = $"/{libraryId}/{videoId}/playlist.m3u8";
+           // string path = $"/{libraryId}/{videoId}/playlist.m3u8";
+            string path = $"/{videoId}/playlist.m3u8";
 
             string hashInput = securityKey + path + expires;
 
