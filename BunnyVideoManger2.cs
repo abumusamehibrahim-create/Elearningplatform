@@ -68,31 +68,39 @@
         // ============================================================
         // ⭐ 3) Generate Signed URL (HLS)
         // ============================================================
-       /* public string GenerateSignedUrl(string videoId)
+        public string GenerateSignedUrl(string videoId)
         {
-            string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
-            string cdn = _config["BUNNY_STREAM_CDN"];
-            string libraryId = _config["BUNNY_STREAM_LIBRARY_ID"];
+            string securityKey = _config["BUNNY_CDN_TOKEN_KEY"];
+            string cdnHostname = _config["BUNNY_CDN_HOSTNAME"];
 
             long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
 
-           // string path = $"/{libraryId}/{videoId}/playlist.m3u8";
-            string path = $"/{videoId}/playlist.m3u8";
+            // IMPORTANT: Directory path, not playlist.m3u8
+            string path = $"/{videoId}/";
 
-            string hashInput = securityKey + path + expires;
+            // HMAC-SHA256
+            var keyBytes = Encoding.UTF8.GetBytes(securityKey);
+            var messageBytes = Encoding.UTF8.GetBytes($"{path}{expires}");
 
-            string token = Convert.ToHexString( 
-                System.Security.Cryptography.SHA256.HashData(
-                    System.Text.Encoding.UTF8.GetBytes(hashInput)
-                )
-            ).ToLower();
+            using var hmac = new HMACSHA256(keyBytes);
+            var hashBytes = hmac.ComputeHash(messageBytes);
 
-            return $"https://{cdn}{path}?token={token}&expires={expires}";
+            // Base64URL encoding
+            string base64Url = Convert.ToBase64String(hashBytes)
+                .Replace("+", "-")
+                .Replace("/", "_")
+                .Replace("=", "");
+
+            string token = $"HS256-{base64Url}";
+
+            return $"https://{cdnHostname}/{videoId}/playlist.m3u8?bcdn_token={token}&expires={expires}";
         }
-       */
-        public string GenerateSignedUrl(string videoId)
+
+      /*  public string GenerateSignedUrl(string videoId)
         {
-            string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
+           // string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
+            string securityKey = _config["BUNNY_CDN_TOKEN_KEY"];
+
             string cdn = _config["BUNNY_STREAM_CDN"];
 
             long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
@@ -111,7 +119,7 @@
             return $"https://{cdn}{path}?token={token}&expires={expires}";
         }
 
-
+        */
 
         // ============================================================
         // ⭐ 4) Delete Video
