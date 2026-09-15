@@ -48,7 +48,7 @@
                     <div>
                         @if (video.IsFree)
                         {
-                            <a asp-controller="Video" asp-action="Watch" asp-route-videoId="@video.Id"
+                            <a asp-controller="Video" asp-action="WatchBunny" asp-route-videoId="@video.Id"
                                class="btn btn-sm btn-outline-success">
                                 <i class="fas fa-play me-1"></i>شاهد مجاناً
                             </a>
@@ -61,7 +61,7 @@
                             @if (canAccess)
                             {
 
-                                <a asp-controller="Video" asp-action="Watch" asp-route-videoId="@video.Id"
+                                <a asp-controller="Video" asp-action="WatchBunny" asp-route-videoId="@video.Id"
                                 class="btn btn-sm btn-danger">
                                     <i class="fas fa-play me-1"></i>مشاهدة
                                 </a>
