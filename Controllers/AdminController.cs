@@ -2141,7 +2141,7 @@ namespace ELearningPlatform.Controllers
         }
 
         // watchllllllllllllllllllllllllllllllllllllllllllllllll
-/*
+
         public async Task<IActionResult> Watch(int videoId)
         {
            try{
@@ -2163,7 +2163,7 @@ namespace ELearningPlatform.Controllers
             {
                 return Content("Error: " + e.Message);
             }
-        }*/
+        }
         //======================================================================bunnyWatch=========================
         public async Task<IActionResult>WatchBunny(int videoId)
         {
