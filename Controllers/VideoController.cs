@@ -159,9 +159,6 @@ namespace ELearningPlatform.Controllers
             return View(video);
         }
 
-
-
-
         public async Task<IActionResult> WatchBunny(int videoId)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -175,21 +172,44 @@ namespace ELearningPlatform.Controllers
             if (video == null)
                 return NotFound();
 
-            if (!video.UseBunny)
-                return View("Watch", video);
-
-            // ⭐ الرابط الصحيح بدون Library ID (كما قال Bunny Support)
-            string hlsUrl =
-                $"https://{video.BunnyCDNHostname}/{video.BunnyVideoId}/playlist.m3u8";
-
-            // ⭐ إرسال الرابط إلى الصفحة
-            ViewBag.VideoUrl = hlsUrl;
+            if (video.UseBunny)
+            {
+                // لا نعدل FileName أبداً
+                ViewBag.VideoUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+            }
 
             return View("WatchBunny", video);
         }
 
 
+        /*  public async Task<IActionResult> WatchBunny(int videoId)
+          {
+              var user = await _userManager.GetUserAsync(User);
+              if (user == null)
+                  return RedirectToAction("Login", "Account");
 
+              var video = await _context.Videos
+                  .Include(v => v.Course)
+                  .FirstOrDefaultAsync(v => v.Id == videoId);
+
+              if (video == null)
+                  return NotFound();
+
+              if (!video.UseBunny)
+                  return View("Watch", video);
+
+              // ⭐ الرابط الصحيح بدون Library ID (كما قال Bunny Support)
+              string hlsUrl =
+                  $"https://{video.BunnyCDNHostname}/{video.BunnyVideoId}/playlist.m3u8";
+
+              // ⭐ إرسال الرابط إلى الصفحة
+              ViewBag.VideoUrl = hlsUrl;
+
+              return View("WatchBunny", video);
+          }
+
+
+          */
 
 
 

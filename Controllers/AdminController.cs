@@ -2165,7 +2165,7 @@ namespace ELearningPlatform.Controllers
             }
         }
         //======================================================================bunnyWatch=========================
-        public async Task<IActionResult> WatchBunny(int videoId)
+        public async Task<IActionResult>WatchBunny(int videoId)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
