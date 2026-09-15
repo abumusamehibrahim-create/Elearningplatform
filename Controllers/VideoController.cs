@@ -246,7 +246,7 @@ namespace ELearningPlatform.Controllers
             ViewBag.VideoUrl = signedUrl;
 
             // ⭐ إرسال معلومات الـ Debug إلى الصفحة
-            ViewBag.DebugInfo = new List<string>
+          /*  ViewBag.DebugInfo = new List<string>
     {
         "SIGNED URL = " + signedUrl,
         "BUNNY VIDEO ID = " + video.BunnyVideoId,
@@ -256,7 +256,7 @@ namespace ELearningPlatform.Controllers
 
             // ⭐ طباعة في Render Logs (اختياري)
             Console.WriteLine("=== BUNNY DEBUG ===");
-            Console.WriteLine("SIGNED URL = " + signedUrl);
+            Console.WriteLine("SIGNED URL = " + signedUrl);*/
 
             return View("WatchBunny", video);
         }

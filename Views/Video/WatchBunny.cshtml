@@ -10,10 +10,10 @@
     <h5>🎬 معلومات الفيديو (Bunny Stream):</h5>
     <p><strong>Video ID:</strong> @Model.Id</p>
     <p><strong>Bunny Video ID:</strong> @Model.BunnyVideoId</p>
-    <p><strong>CDN Hostname:</strong> @Model.BunnyCDNHostname</p>
+   <!-- <p><strong>CDN Hostname:</strong> @Model.BunnyCDNHostname</p>
     <p><strong>Stream URL:</strong> @streamUrl</p>
-
-    @if (ViewBag.DebugInfo != null)
+    -->
+   <!-- @if (ViewBag.DebugInfo != null)
     {
         <div class="alert alert-warning m-3">
             <h5>🔧 Debug Info:</h5>
@@ -24,8 +24,8 @@
                 }
             </ul>
         </div>
-    }
-
+    }-->
+    
 </div>
 
 <div style="background:#000;">
@@ -89,11 +89,3 @@
 
     </div>
 </div>
-hls.on(Hls.Events.ERROR, function (event, data) {
-    if (data.details === "networkError") {
-        console.log("NETWORK ERROR:", data);
-    }
-});
-hls.on(Hls.Events.FRAG_LOADING, function (event, data) {
-    console.log("FRAG LOADING:", data.frag.url);
-});
