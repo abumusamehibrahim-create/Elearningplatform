@@ -89,3 +89,11 @@
 
     </div>
 </div>
+hls.on(Hls.Events.ERROR, function (event, data) {
+    if (data.details === "networkError") {
+        console.log("NETWORK ERROR:", data);
+    }
+});
+hls.on(Hls.Events.FRAG_LOADING, function (event, data) {
+    console.log("FRAG LOADING:", data.frag.url);
+});

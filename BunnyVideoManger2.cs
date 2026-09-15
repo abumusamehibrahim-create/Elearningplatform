@@ -104,12 +104,7 @@
             using var sha = SHA256.Create();
             var hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(hashInput));
             string token = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
-            Console.WriteLine("SECURITY KEY = " + securityKey);
-            Console.WriteLine("CDN = " + cdn);
-            Console.WriteLine("PATH = " + path);
-            Console.WriteLine("EXPIRES = " + expires);
-            Console.WriteLine("HASH INPUT = " + hashInput);
-            Console.WriteLine("TOKEN = " + token);
+            
 
 
             return $"https://{cdn}{path}?token={token}&expires={expires}";
