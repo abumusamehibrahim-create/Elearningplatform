@@ -199,16 +199,16 @@ namespace ELearningPlatform.Controllers
                   return View("Watch", video);
 
             // ⭐ الرابط الصحيح بدون Library ID (كما قال Bunny Support)
-            // string hlsUrl =
-            //    $"https://{video.BunnyCDNHostname}/{video.BunnyVideoId}/playlist.m3u8";
+           // string hlsUrl =
+            // $"https://{video.BunnyCDNHostname}/{video.BunnyVideoId}/playlist.m3u8";
 
             // ⭐ إرسال الرابط إلى الصفحة
             // ViewBag.VideoUrl = hlsUrl;
 
-            if (video.UseBunny)
+           if (video.UseBunny)
             {
                 // لا نعدل FileName أبداً
-                ViewBag.VideoUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+              ViewBag.VideoUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
             }
 
             return View("WatchBunny", video);
