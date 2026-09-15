@@ -5,6 +5,7 @@
     using Microsoft.AspNetCore.Http;
     using Newtonsoft.Json;
     using System.Text;
+    using System.Security.Cryptography;
 
     public class BunnyVideoManager2
     {
@@ -67,7 +68,7 @@
         // ============================================================
         // ⭐ 3) Generate Signed URL (HLS)
         // ============================================================
-        public string GenerateSignedUrl(string videoId)
+       /* public string GenerateSignedUrl(string videoId)
         {
             string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
             string cdn = _config["BUNNY_STREAM_CDN"];
@@ -88,7 +89,24 @@
 
             return $"https://{cdn}{path}?token={token}&expires={expires}";
         }
+       */
+        public string GenerateSignedUrl(string videoId)
+        {
+            string securityKey = _config["BUNNY_STREAM_SECURITY_KEY"];
+            string cdn = _config["BUNNY_STREAM_CDN"];
 
+            long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
+
+            string path = $"/{videoId}/playlist.m3u8";
+
+            string hashInput = $"{securityKey}{path}{expires}";
+
+            using var sha = SHA256.Create();
+            var hashBytes = sha.ComputeHash(Encoding.UTF8.GetBytes(hashInput));
+            string token = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+
+            return $"https://{cdn}{path}?token={token}&expires={expires}";
+        }
 
 
 
