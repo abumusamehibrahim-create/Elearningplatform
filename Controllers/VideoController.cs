@@ -132,56 +132,58 @@ namespace ELearningPlatform.Controllers
 
           }//==========================================azurestreaming
           */
-     /* public async Task<IActionResult> Watch(int videoId)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return RedirectToAction("Login", "Account");
+        /* public async Task<IActionResult> Watch(int videoId)
+           {
+               var user = await _userManager.GetUserAsync(User);
+               if (user == null)
+                   return RedirectToAction("Login", "Account");
 
-            var video = await _context.Videos
-                .Include(v => v.Course)
-                .FirstOrDefaultAsync(v => v.Id == videoId);
+               var video = await _context.Videos
+                   .Include(v => v.Course)
+                   .FirstOrDefaultAsync(v => v.Id == videoId);
 
-            if (video == null)
-                return NotFound();
+               if (video == null)
+                   return NotFound();
 
-            // ⭐ إذا كان الفيديو من Bunny Stream (بدون Token)
-            if (video.UseBunny)
-            {
-                // رابط مباشر بدون توقيع
-                string url = $"https://{video.BunnyCDNHostname}/{video.BunnyVideoId}/playlist.m3u8";
+               // ⭐ إذا كان الفيديو من Bunny Stream (بدون Token)
+               if (video.UseBunny)
+               {
+                   // رابط مباشر بدون توقيع
+                   string url = $"https://{video.BunnyCDNHostname}/{video.BunnyVideoId}/playlist.m3u8";
 
-                ViewBag.VideoUrl = url;
+                   ViewBag.VideoUrl = url;
 
-                return View("WatchBunny", video);
-            }
+                   return View("WatchBunny", video);
+               }
 
-            // ⭐ إذا كان الفيديو محلي أو Azure
-            return View(video);
-        }*/
+               // ⭐ إذا كان الفيديو محلي أو Azure
+               return View(video);
+           }*/
 
-      /*  public async Task<IActionResult> WatchBunny(int videoId)
-        {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-                return RedirectToAction("Login", "Account");
+        /*  public async Task<IActionResult> WatchBunny(int videoId)
+          {
+              var user = await _userManager.GetUserAsync(User);
+              if (user == null)
+                  return RedirectToAction("Login", "Account");
 
-            var video = await _context.Videos
-                .Include(v => v.Course)
-                .FirstOrDefaultAsync(v => v.Id == videoId);
+              var video = await _context.Videos
+                  .Include(v => v.Course)
+                  .FirstOrDefaultAsync(v => v.Id == videoId);
 
-            if (video == null)
-                return NotFound();
+              if (video == null)
+                  return NotFound();
 
-            if (video.UseBunny)
-            {
-                // لا نعدل FileName أبداً
-                ViewBag.VideoUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
-            }
+              if (video.UseBunny)
+              {
+                  // لا نعدل FileName أبداً
+                  ViewBag.VideoUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+              }
 
-            return View("WatchBunny", video);
-        }
-      */
+              return View("WatchBunny", video);
+          }
+        */
+
+        /*
 
          public async Task<IActionResult> WatchBunny(int videoId)
           {
@@ -213,13 +215,54 @@ namespace ELearningPlatform.Controllers
 
                 Console.WriteLine("=== BUNNY DEBUG ===");
                 Console.WriteLine("SIGNED URL = " + ViewBag.VideoUrl);
+
+
+
             }
 
             return View("WatchBunny", video);
           }
+        */
+        public async Task<IActionResult> WatchBunny(int videoId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return RedirectToAction("Login", "Account");
+
+            var video = await _context.Videos
+                .Include(v => v.Course)
+                .FirstOrDefaultAsync(v => v.Id == videoId);
+
+            if (video == null)
+                return NotFound();
+
+            if (!video.UseBunny)
+                return View("Watch", video);
+
+            // ⭐ توليد الرابط الموقّع
+            string signedUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+
+            // ⭐ إرسال الرابط إلى الصفحة
+            ViewBag.VideoUrl = signedUrl;
+
+            // ⭐ إرسال معلومات الـ Debug إلى الصفحة
+            ViewBag.DebugInfo = new List<string>
+    {
+        "SIGNED URL = " + signedUrl,
+        "BUNNY VIDEO ID = " + video.BunnyVideoId,
+        "CDN = " + video.BunnyCDNHostname,
+        "PATH = /" + video.BunnyVideoId + "/playlist.m3u8"
+    };
+
+            // ⭐ طباعة في Render Logs (اختياري)
+            Console.WriteLine("=== BUNNY DEBUG ===");
+            Console.WriteLine("SIGNED URL = " + signedUrl);
+
+            return View("WatchBunny", video);
+        }
 
 
-          
+
 
 
 

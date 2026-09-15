@@ -12,6 +12,20 @@
     <p><strong>Bunny Video ID:</strong> @Model.BunnyVideoId</p>
     <p><strong>CDN Hostname:</strong> @Model.BunnyCDNHostname</p>
     <p><strong>Stream URL:</strong> @streamUrl</p>
+
+    @if (ViewBag.DebugInfo != null)
+    {
+        <div class="alert alert-warning m-3">
+            <h5>🔧 Debug Info:</h5>
+            <ul>
+                @foreach (var item in ViewBag.DebugInfo)
+                {
+                    <li>@item</li>
+                }
+            </ul>
+        </div>
+    }
+
 </div>
 
 <div style="background:#000;">
