@@ -131,7 +131,7 @@ namespace ELearningPlatform.Controllers
 
           }//==========================================azurestreaming
           */
-        public async Task<IActionResult> Watch(int videoId)
+    /*    public async Task<IActionResult> Watch(int videoId)
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
@@ -157,7 +157,7 @@ namespace ELearningPlatform.Controllers
 
             // ⭐ إذا كان الفيديو محلي أو Azure
             return View(video);
-        }
+        }*/
 
         public async Task<IActionResult> WatchBunny(int videoId)
         {
