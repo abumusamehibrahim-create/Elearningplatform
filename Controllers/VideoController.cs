@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Org.BouncyCastle.Asn1.Crmf;
 using Stripe;
+using System.Security.Cryptography.Xml;
 using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace ELearningPlatform.Controllers
@@ -209,6 +210,9 @@ namespace ELearningPlatform.Controllers
             {
                 // لا نعدل FileName أبداً
               ViewBag.VideoUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+
+                Console.WriteLine("=== BUNNY DEBUG ===");
+                Console.WriteLine("SIGNED URL = " + ViewBag.VideoUrl);
             }
 
             return View("WatchBunny", video);
