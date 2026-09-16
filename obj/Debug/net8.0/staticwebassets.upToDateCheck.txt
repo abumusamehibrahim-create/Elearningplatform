@@ -12,7 +12,6 @@ wwwroot\css\themeDarkNeon.css
 wwwroot\css\themeEmeraldGreen.css
 wwwroot\css\themeRoyalRed.css
 wwwroot\css\THEMEUltraModernPremium.css
-wwwroot\css\watermark.css
 wwwroot\favicon.ico
 wwwroot\images\gallery\2bd46908-8585-41ca-b792-a2eca7b914a1.jpg
 wwwroot\images\gallery\42bfb920-444e-4634-ade0-8a70a57fde44.jpg
@@ -124,3 +123,4 @@ wwwroot\thumbnails\ed69b348-b157-4d8c-aa9d-8aeac983d770.jpg
 wwwroot\thumbnails\f05a9cf4-47b7-40f3-8c5b-34255c5a1130.jpg
 wwwroot\thumbnails\ffdb077c-1728-4cd7-a3b2-444df2ac1f32.jpg
 wwwroot\uploads\logos\logos.png
+wwwroot\css\watermark.css
