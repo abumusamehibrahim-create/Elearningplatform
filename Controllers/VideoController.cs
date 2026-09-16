@@ -256,10 +256,7 @@ namespace ELearningPlatform.Controllers
 };
 
 
-            // ⭐ طباعة في Render Logs (اختياري)
-            Console.WriteLine("=== BUNNY DEBUG ===");
-            Console.WriteLine("SIGNED URL = " + signedUrl);
-
+          
             return View("WatchBunny", video);
         }
 
