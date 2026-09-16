@@ -3,7 +3,7 @@
     background: #000;
 }
 
-/* ⭐ Watermark في منتصف الشاشة */
+/* ⭐ Watermark في الوضع العادي */
 #watermark {
     position: absolute;
     top: 50%;
@@ -19,14 +19,16 @@
     width: 100%;
 }
 
-/* ⭐ عندما يدخل الفيديو وضع Fullscreen */
-:fullscreen #watermark,
-:-webkit-full-screen #watermark {
-    position: absolute;
+/* ⭐ Watermark داخل وضع Fullscreen للفيديو */
+video:fullscreen + #watermark,
+video:-webkit-full-screen + #watermark {
+    position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(-15deg);
     opacity: 0.35;
-    font-size: 42px; /* أكبر قليلاً */
-    z-index: 99999;
+    font-size: 42px;
+    color: red;
+    z-index: 999999;
+    pointer-events: none;
 }
