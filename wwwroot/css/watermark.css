@@ -1,0 +1,22 @@
+﻿<style >
+#video-container {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
+}
+
+#watermark {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    opacity: 0.35;
+    font-size: 22px;
+    font-weight: bold;
+    color: red;
+    pointer-events: none;
+    z-index: 9999;
+    transform: rotate(-15deg);
+}
+
+</style >

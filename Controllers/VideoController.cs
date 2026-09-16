@@ -247,16 +247,18 @@ namespace ELearningPlatform.Controllers
             // ⭐ إرسال الرابط إلى الصفحة
             ViewBag.VideoUrl = signedUrl;
 
-            ViewBag.DebugInfo = new List<string>
+           /* ViewBag.DebugInfo = new List<string>
 {
     "SIGNED URL = " + signedUrl,
     "BUNNY VIDEO ID = " + video.BunnyVideoId,
     "CDN = " + _config["BUNNY_STREAM_PULLZONE"],
     "PATH = /" + video.BunnyVideoId + "/"   // ✔ الصحيح
 };
+*/
+            ViewBag.Watermark = $"{user.FullName} | {user.Email} | {DateTime.UtcNow}";
 
+            
 
-          
             return View("WatchBunny", video);
         }
 

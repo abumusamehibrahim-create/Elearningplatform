@@ -12,6 +12,7 @@ wwwroot\css\themeDarkNeon.css
 wwwroot\css\themeEmeraldGreen.css
 wwwroot\css\themeRoyalRed.css
 wwwroot\css\THEMEUltraModernPremium.css
+wwwroot\css\watermark.css
 wwwroot\favicon.ico
 wwwroot\images\gallery\2bd46908-8585-41ca-b792-a2eca7b914a1.jpg
 wwwroot\images\gallery\42bfb920-444e-4634-ade0-8a70a57fde44.jpg

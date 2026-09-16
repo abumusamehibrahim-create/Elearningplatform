@@ -1,37 +1,40 @@
 ﻿@model ELearningPlatform.Models.Video
+<link rel="stylesheet" href="~/css/watermark.css" />
+
 @{
     ViewData["Title"] = Model.Title;
 
-    // رابط HLS القادم من Controller
     var streamUrl = ViewBag.VideoUrl;
+    var watermark = ViewBag.Watermark;   // ⭐ أضفنا هذا
 }
 
 <div class="alert alert-info m-3">
     <h5>🎬 معلومات الفيديو (Bunny Stream):</h5>
-    <p><strong>Video ID:</strong> @Model.Id</p>
-    <p><strong>Bunny Video ID:</strong> @Model.BunnyVideoId</p>
-    ViewBag.CdnHostname = _config["BUNNY_STREAM_PULLZONE"];
-    <p><strong>Stream URL:</strong> @streamUrl</p>
-    
-    @if (ViewBag.DebugInfo != null)
+   <!-- <p><strong>Video ID:</strong> XModel.Id</p>
+    <p><strong>Bunny Video ID:</strong> XModel.BunnyVideoId</p>
+    <p><strong>Stream URL:</strong> XstreamUrl</p>
+    -->
+   <!-- Xif (ViewBag.DebugInfo != null)
     {
         <div class="alert alert-warning m-3">
             <h5>🔧 Debug Info:</h5>
             <ul>
-                @foreach (var item in ViewBag.DebugInfo)
+               Xforeach (var item in ViewBag.DebugInfo)
                 {
-                    <li>@item</li>
+                    <li>Xitem</li>
                 }
             </ul>
         </div>
-    }
-    
+    }-->
 </div>
 
-<div style="background:#000;">
-    <div class="container px-0">
+<div id="video-wrapper">
+    <div id="watermark">
+        @ViewBag.Watermark
+    </div>
 
-        <video id="videoPlayer"
+    <div class="container px-0">
+              <video id="videoPlayer"
                controls
                width="100%"
                style="max-height:70vh;"
