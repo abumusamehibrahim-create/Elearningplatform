@@ -1,4 +1,10 @@
-﻿#watermark {
+﻿#video-wrapper {
+    position: relative;
+    background: #000;
+}
+
+/* ⭐ Watermark في منتصف الشاشة */
+#watermark {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -13,7 +19,14 @@
     width: 100%;
 }
 
-#video-wrapper {
-    position: relative;
-    background: #000;
+/* ⭐ عندما يدخل الفيديو وضع Fullscreen */
+:fullscreen #watermark,
+:-webkit-full-screen #watermark {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-15deg);
+    opacity: 0.35;
+    font-size: 42px; /* أكبر قليلاً */
+    z-index: 99999;
 }
