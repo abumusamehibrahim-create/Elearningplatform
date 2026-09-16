@@ -68,35 +68,64 @@
         // ============================================================
         // ⭐ 3) Generate Signed URL (HLS)
         // ============================================================
-     /*   public string GenerateSignedUrl(string videoId)
+        /*   public string GenerateSignedUrl(string videoId)
+           {
+               string securityKey = _config["BUNNY_CDN_TOKEN_KEY"];
+               string cdnHostname = _config["BUNNY_CDN_HOSTNAME"];
+
+               long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
+
+               // IMPORTANT: Directory path, not playlist.m3u8
+               string path = $"/{videoId}/";
+
+               // HMAC-SHA256
+               var keyBytes = Encoding.UTF8.GetBytes(securityKey);
+               var messageBytes = Encoding.UTF8.GetBytes($"{path}{expires}");
+
+               using var hmac = new HMACSHA256(keyBytes);
+               var hashBytes = hmac.ComputeHash(messageBytes);
+
+               // Base64URL encoding
+               string base64Url = Convert.ToBase64String(hashBytes)
+                   .Replace("+", "-")
+                   .Replace("/", "_")
+                   .Replace("=", "");
+
+               string token = $"HS256-{base64Url}";
+
+               return $"https://{cdnHostname}/{videoId}/playlist.m3u8?bcdn_token={token}&expires={expires}";
+           }
+        */
+        public string GenerateSignedUrlBasic(string videoId)
         {
-            string securityKey = _config["BUNNY_CDN_TOKEN_KEY"];
-            string cdnHostname = _config["BUNNY_CDN_HOSTNAME"];
+            // هذا هو الـ Token Authentication Key من Bunny
+            string securityKey = _config["BUNNY_STREAM_TOKEN_KEY"];
+
+            // هذا هو الـ Pull Zone الصحيح
+            string hostname = _config["BUNNY_STREAM_PULLZONE"];
+            // مثال: vz-c79f935b-846.b-cdn.net
 
             long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
 
-            // IMPORTANT: Directory path, not playlist.m3u8
-            string path = $"/{videoId}/";
+            // مسار ملف الـ HLS داخل Bunny Stream
+            string path = $"/{videoId}/playlist.m3u8";
 
-            // HMAC-SHA256
-            var keyBytes = Encoding.UTF8.GetBytes(securityKey);
-            var messageBytes = Encoding.UTF8.GetBytes($"{path}{expires}");
+            // صيغة التوقيع المطلوبة من Bunny
+            string hashableBase = securityKey + path + expires;
 
-            using var hmac = new HMACSHA256(keyBytes);
-            var hashBytes = hmac.ComputeHash(messageBytes);
+            using var md5 = System.Security.Cryptography.MD5.Create();
+            var hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(hashableBase));
 
-            // Base64URL encoding
-            string base64Url = Convert.ToBase64String(hashBytes)
+            // Base64 URL Safe
+            string token = Convert.ToBase64String(hashBytes)
                 .Replace("+", "-")
                 .Replace("/", "_")
                 .Replace("=", "");
 
-            string token = $"HS256-{base64Url}";
-
-            return $"https://{cdnHostname}/{videoId}/playlist.m3u8?bcdn_token={token}&expires={expires}";
+            return $"https://{hostname}{path}?token={token}&expires={expires}";
         }
-     */
-     public string GenerateSignedUrl1(string videoId)
+
+        public string GenerateSignedUrl1(string videoId)
 {
     // مفتاح التوكن من Bunny (Token Authentication Key)
     string securityKey = _config["BUNNY_STREAM_TOKEN_KEY"];
