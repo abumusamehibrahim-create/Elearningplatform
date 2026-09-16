@@ -242,7 +242,7 @@ namespace ELearningPlatform.Controllers
                 return View("Watch", video);
 
             // ⭐ توليد الرابط الموقّع
-            string signedUrl = _bunny.GenerateSignedUrl1(video.BunnyVideoId);
+            string signedUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
 
             // ⭐ إرسال الرابط إلى الصفحة
             ViewBag.VideoUrl = signedUrl;
