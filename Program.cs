@@ -63,6 +63,10 @@ builder.Services.Configure<ClientSetting>(
     builder.Configuration.GetSection("ClientSettings"));// client setting
 builder.Services.AddScoped<FileCleanupService>();// rmove file and viedo not connected to database
 
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Limits.MaxRequestBodySize = 524288000; // 500 MB
+});
 
 var app = builder.Build();
 

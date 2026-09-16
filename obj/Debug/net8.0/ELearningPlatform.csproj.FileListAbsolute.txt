@@ -279,3 +279,4 @@ D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\System.Text.E
 D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\System.Text.Json.dll
 D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\runtimes\browser\lib\net8.0\System.Text.Encodings.Web.dll
 D:\VSProjects\Elearningplatform\ELearningPlatform\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt
+D:\VSProjects\Elearningplatform\ELearningPlatform\bin\Debug\net8.0\Web.config
