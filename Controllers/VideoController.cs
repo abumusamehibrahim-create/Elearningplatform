@@ -242,7 +242,7 @@ namespace ELearningPlatform.Controllers
                 return View("Watch", video);
 
             // ⭐ توليد الرابط الموقّع
-            string signedUrl = _bunny.GenerateSignedUrl(video.BunnyVideoId);
+            string signedUrl = _bunny.GenerateSignedUrl1(video.BunnyVideoId);
 
             // ⭐ إرسال الرابط إلى الصفحة
             ViewBag.VideoUrl = signedUrl;
@@ -251,7 +251,7 @@ namespace ELearningPlatform.Controllers
 {
     "SIGNED URL = " + signedUrl,
     "BUNNY VIDEO ID = " + video.BunnyVideoId,
-    "CDN = " + _config["BUNNY_CDN_HOSTNAME"],
+    "CDN = " + _config["BUNNY_STREAM_PULLZONE"],
     "PATH = /" + video.BunnyVideoId + "/"   // ✔ الصحيح
 };
 

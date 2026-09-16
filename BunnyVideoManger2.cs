@@ -96,6 +96,34 @@
             return $"https://{cdnHostname}/{videoId}/playlist.m3u8?bcdn_token={token}&expires={expires}";
         }
      */
+     public string GenerateSignedUrl1(string videoId)
+{
+    // مفتاح التوكن من Bunny (Token Authentication Key)
+    string securityKey = _config["BUNNY_STREAM_TOKEN_KEY"];
+
+    // هذا هو الـ Pull Zone الصحيح الخاص بمكتبة الفيديو
+    string hostname = _config["BUNNY_STREAM_PULLZONE"]; 
+    // مثال: elearningvideos.b-cdn.net
+
+    long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 3600;
+
+    // مسار ملف الـ HLS داخل Bunny Stream
+    string path = $"/{videoId}/playlist.m3u8";
+
+    // صيغة التوقيع المطلوبة من Bunny
+    string hashableBase = securityKey + path + expires;
+
+    using var md5 = System.Security.Cryptography.MD5.Create();
+    var hashBytes = md5.ComputeHash(Encoding.UTF8.GetBytes(hashableBase));
+
+    // Base64 URL Safe
+    string token = Convert.ToBase64String(hashBytes)
+        .Replace("+", "-")
+        .Replace("/", "_")
+        .Replace("=", "");
+
+    return $"https://{hostname}{path}?token={token}&expires={expires}";
+}
 
         public string GenerateSignedUrl(string videoId)
           {

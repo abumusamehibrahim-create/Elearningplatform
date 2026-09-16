@@ -10,7 +10,7 @@
     <h5>🎬 معلومات الفيديو (Bunny Stream):</h5>
     <p><strong>Video ID:</strong> @Model.Id</p>
     <p><strong>Bunny Video ID:</strong> @Model.BunnyVideoId</p>
-    ViewBag.CdnHostname = _config["BUNNY_CDN_HOSTNAME"];
+    ViewBag.CdnHostname = _config["BUNNY_STREAM_PULLZONE"];
     <p><strong>Stream URL:</strong> @streamUrl</p>
     
     @if (ViewBag.DebugInfo != null)
