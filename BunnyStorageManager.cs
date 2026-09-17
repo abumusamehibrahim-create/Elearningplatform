@@ -40,8 +40,8 @@
 
             var response = await _http.SendAsync(request);
             response.EnsureSuccessStatusCode();
-
-            return $"{_cdnBaseUrl}/worksheets/{fileName}";
+            return $"https://{_cdnBaseUrl}/worksheets/{fileName}";
+          //  return $"{_cdnBaseUrl}/worksheets/{fileName}";
         }
 
         // ============================================================
@@ -67,7 +67,9 @@
 
             long expires = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + 60;
 
-            string path = $"/{_storageZone}/worksheets/{fileName}";
+           // string path = $"/{_storageZone}/worksheets/{fileName}";
+           // Pull Zone does NOT include storage zone name
+            string path = $"/worksheets/{fileName}";
 
             string hashInput = securityKey + path + expires;
 
