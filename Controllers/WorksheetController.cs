@@ -145,7 +145,7 @@ public class WorksheetController : BaseController
         string url = _bunny.GenerateWorksheetSignedUrl(file.FileName);
 
         ViewBag.PdfUrl = url;
-        return View("ViewPdfBunny", url);
+        return View("ViewPdf", url);
     }
 
 
