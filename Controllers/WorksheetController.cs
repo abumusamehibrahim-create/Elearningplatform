@@ -141,14 +141,12 @@ public class WorksheetController : BaseController
         if (file == null)
             return NotFound();
 
-        // الرابط الكامل من قاعدة البيانات
-        string finalUrl = file.FilePath;
+        // توليد رابط محمي من Bunny
+        string signedUrl = _bunny.GenerateWorksheetSignedUrl(file.FileName);
 
-        // إذا أردت حماية إضافية عبر Signed URL:
-        // string finalUrl = _bunny.GenerateWorksheetSignedUrl(file.FileName);
-
-        return View("ViewPdf", finalUrl);
+        return View("ViewPdf", signedUrl);
     }
+
 
     //==============================================================
     public async Task<IActionResult> ViewPdf(int id)

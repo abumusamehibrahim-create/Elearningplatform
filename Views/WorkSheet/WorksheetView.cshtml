@@ -1,9 +1,5 @@
 ﻿@model WorksheetViewModel
 
-@{
-    ViewData["Title"] = "أوراق العمل - " + Model.Title;
-}
-
 <h2 class="fw-bold text-danger mb-4">
     <i class="fas fa-file-alt me-2"></i> أوراق العمل: @Model.Title
 </h2>
@@ -16,11 +12,11 @@
 }
 else
 {
-    @foreach (var file in Model.WorksheetFiles.Where(f => !string.IsNullOrWhiteSpace(f.FileName)))
+    @foreach (var file in Model.WorksheetFiles)
     {
         <div class="card mb-4 shadow-sm">
             <div class="card-header bg-danger text-white">
-                <i class="fas fa-file-pdf me-2"></i> @file.FilePath
+                <i class="fas fa-file-pdf me-2"></i> @file.FileName
             </div>
 
             <div class="card-body p-0">
@@ -39,56 +35,6 @@ else
                     </a>
                 </div>
             }
-            else
-            {
-                <div class="card-footer text-muted small">
-                    التحميل غير مسموح لهذا الملف
-                </div>
-            }
         </div>
     }
 }
-
-<style>
-    body {
-        -webkit-user-select: none;
-        -webkit-touch-callout: none;
-        user-select: none;
-    }
-
-    .worksheet-frame {
-        pointer-events: none; /* منع التفاعل مع PDF */
-    }
-
-    @@media print {
-        body {
-            display: none;
-        }
-    }
-</style>
-
-<script>
-    // منع Right Click
-    document.addEventListener('contextmenu', e => e.preventDefault());
-
-    // منع النسخ والطباعة والحفظ
-    document.addEventListener('keydown', e => {
-        if (e.ctrlKey && ['c','p','s','u'].includes(e.key.toLowerCase())) {
-            e.preventDefault();
-        }
-    });
-
-    // محاولة تعطيل PrintScreen
-    document.addEventListener('keyup', (e) => {
-        if (e.key === "PrintScreen") {
-            navigator.clipboard.writeText("");
-            alert("تم تعطيل تصوير الشاشة.");
-            fetch('/Worksheet/LogScreenshot?videoId=@Model.VideoId');
-        }
-    });
-
-    // مسح Clipboard باستمرار
-    setInterval(() => {
-        navigator.clipboard.writeText("");
-    }, 300);
-</script>
