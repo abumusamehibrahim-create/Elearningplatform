@@ -213,36 +213,32 @@ public class WorksheetController : BaseController
     {
         try
         {
-            return SafeExecute<IActionResult>(() =>
+            var video = _context.Videos
+                .Include(v => v.WorksheetFiles)
+                .Include(v => v.WorksheetItems)
+                .FirstOrDefault(v => v.Id == videoId);
+
+            if (video == null)
+                return Content("Video not found");
+
+            var model = new WorksheetViewModel
             {
-                var video = _context.Videos
-                    .Include(v => v.WorksheetFiles)
-                    .Include(v => v.WorksheetItems)
-                    .FirstOrDefault(v => v.Id == videoId);
+                VideoId = video.Id,
+                Title = video.Title,
+                WorksheetFiles = video.WorksheetFiles?
+                    .Where(f => f != null && !string.IsNullOrWhiteSpace(f.FileName))
+                    .ToList() ?? new List<WorksheetFile>(),
+                WorksheetItems = video.WorksheetItems?.ToList() ?? new List<WorksheetItem>()
+            };
 
-                if (video == null)
-                    return NotFound();
-
-                var model = new WorksheetViewModel
-                {
-                    VideoId = video.Id,
-                    Title = video.Title,
-
-                    WorksheetFiles = video.WorksheetFiles?
-                        .Where(f => !string.IsNullOrWhiteSpace(f.FileName))
-                        .ToList() ?? new List<WorksheetFile>(),
-
-                    WorksheetItems = video.WorksheetItems?.ToList() ?? new List<WorksheetItem>()
-                };
-
-                return View(model);
-            });
+            return View(model);
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            return Content("Error: " + e.Message);
+            return Content("Error: " + ex.Message);
         }
     }
+
 
     //===================================================upload worksheet bunny
     [HttpPost]
