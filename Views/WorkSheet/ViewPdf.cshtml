@@ -1,10 +1,20 @@
 ﻿@model string
 
-<iframe src="@Model"
-        width="100%"
-        height="900px"
-        style="border:none;">
-</iframe>
+@if (string.IsNullOrWhiteSpace(Model))
+{
+    <div class="alert alert-danger mt-4">
+        لا يمكن عرض ورقة العمل — الرابط غير صالح أو الملف غير موجود.
+    </div>
+}
+else
+{
+    <iframe src="@Model"
+            width="100%"
+            height="900px"
+            style="border:none;">
+    </iframe>
+}
+
 <!-- منع الضغط بالزر اليمين -->
 <script>
     document.addEventListener('contextmenu', event => event.preventDefault());
