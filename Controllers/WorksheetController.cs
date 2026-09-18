@@ -141,13 +141,14 @@ public class WorksheetController : BaseController
         if (file == null)
             return NotFound();
 
-        // توليد رابط محمي
-        string url = _bunny.GenerateWorksheetSignedUrl(file.FileName);
+        // الرابط الكامل من قاعدة البيانات
+        string finalUrl = file.FilePath;
 
-        ViewBag.PdfUrl = url;
-        return View("ViewPdf", url);
+        // إذا أردت حماية إضافية عبر Signed URL:
+        // string finalUrl = _bunny.GenerateWorksheetSignedUrl(file.FileName);
+
+        return View("ViewPdf", finalUrl);
     }
-
 
     //==============================================================
     public async Task<IActionResult> ViewPdf(int id)
@@ -212,33 +213,39 @@ public class WorksheetController : BaseController
 
     public IActionResult WorksheetView(int videoId)
     {
-       try{
-            return SafeExecute<IActionResult>(() =>
+        try
         {
-            var video = _context.Videos
-            .Include(v => v.WorksheetFiles)
-            .Include(v => v.WorksheetItems)
-            .FirstOrDefault(v => v.Id == videoId);
-
-            if (video == null)
-                return NotFound();
-
-            var model = new WorksheetViewModel
+            return SafeExecute<IActionResult>(() =>
             {
-                VideoId = video.Id,
-                Title = video.Title,
-                WorksheetFiles = video.WorksheetFiles.ToList(),
-                WorksheetItems = video.WorksheetItems.ToList()
-            };
+                var video = _context.Videos
+                    .Include(v => v.WorksheetFiles)
+                    .Include(v => v.WorksheetItems)
+                    .FirstOrDefault(v => v.Id == videoId);
 
-            return View(model);
-        });
+                if (video == null)
+                    return NotFound();
+
+                var model = new WorksheetViewModel
+                {
+                    VideoId = video.Id,
+                    Title = video.Title,
+
+                    WorksheetFiles = video.WorksheetFiles?
+                        .Where(f => !string.IsNullOrWhiteSpace(f.FileName))
+                        .ToList() ?? new List<WorksheetFile>(),
+
+                    WorksheetItems = video.WorksheetItems?.ToList() ?? new List<WorksheetItem>()
+                };
+
+                return View(model);
+            });
         }
         catch (Exception e)
         {
             return Content("Error: " + e.Message);
         }
     }
+
     //===================================================upload worksheet bunny
     [HttpPost]
     public async Task<IActionResult> UploadWorksheetBunny(int videoId, IFormFile file)

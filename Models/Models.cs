@@ -105,16 +105,16 @@ namespace ELearningPlatform.Models
         public string PageTitle { get; set; }
         public DateTime VisitTime { get; set; } = DateTime.UtcNow;
     }
-    public class WorksheetFile
-    {
-        public int Id { get; set; }
-        public int VideoId { get; set; }
-        public string FileName { get; set; } // ??? ?????
-        public string FilePath { get; set; } // / /ProtectedWorksheetFile/filename.pdf???? ?????
-        public Video Video { get; set; }
-        public bool AllowDownload { get; set; }
-        public string? FileUrl { get; set; }   // ADD THIS
-    }
+        public class WorksheetFile
+        {
+            public int Id { get; set; }
+            public int VideoId { get; set; }
+            public string FileName { get; set; } // ??? ?????
+            public string FilePath { get; set; } // / /ProtectedWorksheetFile/filename.pdf???? ?????
+            public Video Video { get; set; }
+            public bool AllowDownload { get; set; }
+            public string? FileUrl { get; set; }   // ADD THIS
+        }
     public class WorksheetItem
     {
         public int Id { get; set; }
