@@ -12,10 +12,11 @@ public class WorksheetController : BaseController
     private readonly IWebHostEnvironment _env;
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly AzureVideoManager _videoManager;
-    private readonly BunnyStorageManager _bunny;    
+    private readonly BunnyStorageManager _bunny;
+    protected readonly ApplicationDbContext _context;
     public WorksheetController(ApplicationDbContext context, IConfiguration config, UserManager<ApplicationUser> userManager):base(context)
     {
-       // _context = context;
+       _context = context;
         _userManager = userManager;
         _videoManager = new AzureVideoManager(config); // ⭐ مهم
         _bunny = new BunnyStorageManager(config);   // ⭐ استبدل Azure → Bunny           
