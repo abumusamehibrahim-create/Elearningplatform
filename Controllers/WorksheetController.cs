@@ -11,14 +11,14 @@ public class WorksheetController : BaseController
 {
     private readonly IWebHostEnvironment _env;
     private readonly UserManager<ApplicationUser> _userManager;
-    private readonly AzureVideoManager _videoManager;
+  //  private readonly AzureVideoManager _videoManager;//
     private readonly BunnyStorageManager _bunny;
     protected readonly ApplicationDbContext _context;
     public WorksheetController(ApplicationDbContext context, IConfiguration config, UserManager<ApplicationUser> userManager):base(context)
     {
        _context = context;
         _userManager = userManager;
-        _videoManager = new AzureVideoManager(config); // ⭐ مهم
+      //  _videoManager = new AzureVideoManager(config); // ⭐ مهم
         _bunny = new BunnyStorageManager(config);   // ⭐ استبدل Azure → Bunny           
     }
    // private readonly ApplicationDbContext _context;
@@ -106,34 +106,7 @@ public class WorksheetController : BaseController
     //=========================================dOWNLOAD BUNNY
 
     //============================download Action========
-    public async Task<IActionResult> Download(int id)
-    {
-        try
-        {
-            var file = _context.WorksheetFiles.FirstOrDefault(f => f.Id == id);
-            if (file == null)
-                return NotFound();
-
-            if (!file.AllowDownload && !User.IsInRole("Admin"))
-                return Unauthorized();
-
-            // ⭐ جلب الملف من Azure
-            var stream = await _videoManager.StreamWorksheetAsync(file.FileName);
-
-            using var ms = new MemoryStream();
-            await stream.CopyToAsync(ms);
-            var bytes = ms.ToArray();
-
-            var user = await _userManager.GetUserAsync(User);
-            var watermarked = AddWatermark(bytes, $"Student: {user.UserName}");
-
-            return File(watermarked, "application/pdf", file.FileName);
-        }
-        catch (Exception e)
-        {
-            return Content("Error: " + e.Message);
-        }
-    }
+    
     //=============================================================================
     // ---------------- VIEW PDF (BUNNY) ----------------
     public IActionResult ViewPdfBunny(int id)
@@ -150,7 +123,7 @@ public class WorksheetController : BaseController
 
 
     //==============================================================
-    public async Task<IActionResult> ViewPdf(int id)
+   /* public async Task<IActionResult> ViewPdf(int id)
     {
         var file = _context.WorksheetFiles.FirstOrDefault(f => f.Id == id);
         if (file == null)
@@ -175,9 +148,10 @@ public class WorksheetController : BaseController
         return File(bytes, "application/pdf");
     }
 
-
+    azure viedo manager*/
 
     //==============================================================
+   /* azure viedo manager
     public async Task<IActionResult> ViewPdf2(int id)
     {
         try
@@ -206,7 +180,7 @@ public class WorksheetController : BaseController
         }
     }
 
-
+*/
 
     //================================================
 
@@ -294,7 +268,7 @@ public class WorksheetController : BaseController
 
 
 
-
+    /*azure manager
 
     //==========================================================================
     //==============================uploadWorksheet=============
@@ -388,6 +362,6 @@ public class WorksheetController : BaseController
             return default(T);
         }
     }
-
+    */
 
 }
